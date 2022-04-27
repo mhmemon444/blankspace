@@ -83,7 +83,11 @@ module.exports = {
   // },
 module: {
   rules: [
-    { test: /\.(js|ts)x?$/, loader: "ts-loader" }
+    { test: /\.(js|ts)x?$/, loader: "ts-loader" },
+    {
+      test: /\.css$/i,
+      use: ["style-loader", "css-loader"],
+    },
   ]
 },
   plugins: [
