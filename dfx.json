@@ -1,0 +1,35 @@
+{
+  "canisters": {
+    "blankspace": {
+      "main": "src/blankspace/main.mo",
+      "type": "motoko"
+    },
+    "blankspace_assets": {
+      "dependencies": [
+        "blankspace"
+      ],
+      "frontend": {
+        "entrypoint": "src/blankspace_assets/src/index.html"
+      },
+      "source": [
+        "src/blankspace_assets/assets",
+        "dist/blankspace_assets/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "dfx": "0.9.3",
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8000",
+      "type": "ephemeral"
+    }
+  },
+  "version": 1
+}
