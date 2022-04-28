@@ -1,5 +1,11 @@
-actor {
-  public func greet(name : Text) : async Text {
-    return "Hello, " # name # "!";
-  };
-};
+actor Document { 
+  stable var text : Text = ""; 
+
+  public func settext(update : Text) : async () { 
+    text := update; 
+  }; 
+
+  public func gettext() : async Text { 
+    return text; 
+  }; 
+}
