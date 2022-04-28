@@ -1,18 +1,19 @@
 import * as React from "react";
 import { render } from "react-dom";
-import { blankspace } from "../../declarations/blankspace";
+import App from "./App";
+import { AuthClient } from "@dfinity/auth-client";
 
-import TextEditor from "./TextEditor/TextEditor";
-import "./index.css";
+const init = async () => {
+  const authClient = await AuthClient.create();
 
-const MyHello = () => {
+  authClient.login({
+      identityProvider: "https://identity.ic0.app/#authorize",
+      onSuccess: () => {
+        render(<App />, document.getElementById("app"));
+      },
+  });
+}
+
+init();
 
 
-  return (
-    <div>
-      <TextEditor />
-    </div>
-  );
-};
-
-render(<MyHello />, document.getElementById("app"));
