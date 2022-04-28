@@ -1,7 +1,7 @@
 import * as React from "react";
 import { render } from "react-dom";
 import App from "./App";
-import { AuthClient } from "@dfinity/auth-client";
+import { AuthClient } from "@dfinity/auth-client"; //@dfinity/authentication and @dfinity/identity
 
 const init = async () => {
   const authClient = await AuthClient.create();
