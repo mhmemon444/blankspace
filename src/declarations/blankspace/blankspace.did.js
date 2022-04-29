@@ -1,6 +1,6 @@
 export const idlFactory = ({ IDL }) => {
   return IDL.Service({
-    'gettext' : IDL.Func([], [IDL.Text], ['query']),
+    'gettext' : IDL.Func([], [IDL.Text], []),
     'settext' : IDL.Func([IDL.Text], [], []),
   });
 };
