@@ -25,8 +25,6 @@ export default function TextEditor() {
   const [value, setValue] = useState('');
   const isMounted = useRef(false);
 
-  
-
   async function set() {
       await blankspace.settext(value);
       console.log(value);
@@ -34,14 +32,18 @@ export default function TextEditor() {
 
   async function get() {
       var t = await blankspace.gettext();
-      console.log("text: ", t);
-      setValue(t);
+      // console.log("text: ", t);
+      if (t == value && isMounted.current) {
+        setValue(t);
+      }
       return t;
   }
 
-  useEffect(() => {
+  useEffect(async () => {
     // get();
-    setInterval(get, 1000); //polling
+    var t = await blankspace.gettext();
+    setValue(t);
+    setInterval(get, 500); //polling
   }, []);
 
   useEffect(() => {
