@@ -5,7 +5,7 @@ actor Document {
     text := update; 
   }; 
 
-  public func gettext() : async Text { 
+  public query func gettext() : async Text { 
     return text; 
   };
   
