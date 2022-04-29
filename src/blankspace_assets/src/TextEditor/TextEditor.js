@@ -40,7 +40,8 @@ export default function TextEditor() {
   }
 
   useEffect(() => {
-    get();
+    // get();
+    setInterval(get, 1000); //polling
   }, []);
 
   useEffect(() => {
