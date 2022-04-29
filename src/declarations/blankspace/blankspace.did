@@ -1,4 +1,4 @@
 service : {
-  gettext: () -> (text);
+  gettext: () -> (text) query;
   settext: (text) -> ();
 }
