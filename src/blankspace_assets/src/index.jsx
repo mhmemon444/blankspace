@@ -6,12 +6,20 @@ import { AuthClient } from "@dfinity/auth-client"; //@dfinity/authentication and
 const init = async () => {
   const authClient = await AuthClient.create();
 
-  authClient.login({
+  if (await authClient.isAuthenticated()) {
+    handleAuthenticated(authClient);
+  } else {
+    await authClient.login({
       identityProvider: "https://identity.ic0.app/#authorize",
       onSuccess: () => {
-        render(<App />, document.getElementById("app"));
+        handleAuthenticated(authClient);
       },
-  });
+    });
+  }
+}
+
+async function handleAuthenticated(authClient) {
+  render(<App />, document.getElementById("app"));
 }
 
 init();
