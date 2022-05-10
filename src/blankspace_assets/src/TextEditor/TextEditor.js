@@ -1,13 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import ReactQuill from 'react-quill';
 import Quill from "quill";
 import 'quill/dist/quill.snow.css';
 import 'react-quill/dist/quill.snow.css';
 import "./TextEditor.css";
 import { blankspace } from "../../../declarations/blankspace/index";
-import MyPeer from "./MyPeer";
 import Peer from "simple-peer";
-import { off } from "process";
 
 const TOOLBAR_OPTIONS = [
   [{ header: [1, 2, 3, 4, 5, 6, false] }],
@@ -21,24 +18,21 @@ const TOOLBAR_OPTIONS = [
   ["clean"],
 ]
 
-function arrayEquals(a, b) {
-  return Array.isArray(a) &&
-    Array.isArray(b) &&
-    a.length === b.length &&
-    a.every((val, index) => val === b[index]);
-}
-
 export default function TextEditor() {
 
-  // var peers = [];
   const [quill, setQuill] = useState()
-  const [peer, setPeer] = useState([]);
   const [delta, setDelta] = useState(null);
+  const [peers, setPeers] = useState([]); 
+  const [connected, setConnected] = useState([]); 
+  const [offered, setOffered] = useState([]);
+  
 
+  window.addEventListener('beforeunload', async function (e) {
+    await blankspace.removeFromCurrent(myPrincipal);
+  });
 
   const docID = "abcd1111";
-  const myPrincipal = "hassan"
-  var connected = false;
+  const myPrincipal = location.hash
 
   const wrapperRef = useCallback((wrapper) => {
     if (wrapper == null) return;
@@ -51,217 +45,131 @@ export default function TextEditor() {
     
   }, [])
 
-  const addPeer = (isInitiator, peer) => {
-    const p = new Peer({
-        initiator: isInitiator,
-        trickle: false
+  class MyPeer {
+    constructor(recipient, myPrincipal) {
+      this.recipient = recipient;
+      this.myPrincipal = myPrincipal;
+  
+      this.peer = new Peer({
+        initiator: this.recipient.length > 0,
+        trickle: false,
+      });
+  
+      this.peer.on("signal", async (data) => {
+        if (this.recipient.length > 0){
+          console.log("SENDING", data, recipient)
+          await blankspace.updateCurrentPeers(this.myPrincipal, this.recipient, data.type, data.sdp);
+        }
+      });
+  
+      this.peer.on("connect", () => {
+        console.log("CONNECTED TO", this.recipient);
+        setConnected((prevConnected) => [...prevConnected, this.recipient])
+      });
+  
+      this.peer.on('data', delta => {
+        console.log('delta: ' + delta)
+        setDelta(delta)
       })
-    
-    // //if initator, look for answers
-    // if (location.hash === '#1') {
-    //   var i = setInterval(async () => {
-    //     var s = await blankspace.getSignal(docID);
-    //     if (s != "empty") {
-    //       s = JSON.parse(s);
-    //       if (s.type == "answer") {
-    //         p.signal(s);
-    //         // clearInterval(i);
-    //       }
-    //     }
-    //   }, 2000)
-    // }
 
-
-    p.on('error', err => console.log('error', err))
-
-    p.on('signal', async (data) => {
-      console.log('SIGNAL', JSON.stringify(data))
-      await blankspace.updateUserSignal(peer, JSON.stringify(data));
-      const s = await blankspace.getSignal(peer);
-      console.log("from MOTOKOOOOOO: ", s);
-      // document.querySelector('#outgoing').textContent = JSON.stringify(data)
-    })
-
-    // if (location.hash != '#1') {
-    //   const s = await blankspace.getSignal(docID);
-    //   if (s != "empty") p.signal(JSON.parse(s));
-    // }
-
-    // p.on('connect', () => {
-    //   console.log('CONNECT')
-    //   connected = true;
-    //   console.log("connected p.on ", connected);
-    //   // p.send('whatever' + Math.random())
-    // })
-
-    // p.on('data', delta => {
-    //   console.log('delta: ' + delta)
-    //   setDelta(delta)
-    //   // quill.updateContents(JSON.parse(delta));
-    //   // console.log("quill: ", quill);
-    //   // quill.updateContents(new Delta()
-    //   //   .retain(6)                  // Keep 'Hello '
-    //   //   .delete(5)                  // 'World' is deleted
-    //   //   .insert('Quill')
-    //   //   .retain(1, { bold: true })  // Apply bold to exclamation mark
-    //   // );
-    // })
+      this.peer.on("error", (err) => console.log("error", err));
+    }
+  
+    setRecipient(recipient) {
+      this.recipient = recipient;
+    }
+  
+    getPeer() {
+      return this.peer;
+    }
+  
+    sendDeltas(delta) {
+      console.log('delta sending', delta)
+      this.peer.send(delta);
+    }
   }
+
+  useEffect(() => {
+    console.log('Offered to peer', offered)
+  }, [offered]);
+  
+  // Once connected to a peer, add them to the connected list 
+  useEffect(() => {
+    console.log('Connected to peer', connected)
+  }, [connected]);
+
+  // Once you create a peer to represent another user, add them to the peers list 
+  useEffect(() => {
+    console.log('ADDING PEER', peers)
+  }, [peers]);
+  
+  
+  var myPeers = [] 
   //document onload:
   useEffect(async () => {
-    console.log("curUsersOnDoc: ", await blankspace.getActiveUsers());
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // await blankspace.addPeerOnDoc(docID, location.hash);
-    
-    ///////////////////////////////////////CURR PROGRESS START
-    // const x = await blankspace.getCurrentPeersOnDoc(docID); //["hassan"]
-    // console.log(x);
-
-    
-
-    // console.log("start answerCandidates: ", await blankspace.getAnswerCandidates(localUser));
-
-    // if (x.length > 0) { //if other peers on doc, you are an offerCandidate to them and they are answerCandidates to you
-    //   for (var i = 0; i<x.length; i++) { //for each peer already on doc
-    //     //add peer to your answerCandidates, and add yourself to their offerCandidates
-    //     var remotePeer = x[i];
-    //     await blankspace.addAnswerCandidate(localUser, remotePeer);
-    //     await blankspace.addOfferCandidate(remotePeer, localUser);
-    //   }
-    // } else { //no other peers on doc (you are the first and only one currently on doc)
-    //   await blankspace.addPeerOnDoc(docID, localUser);
-    // }
-
-    
-    ///////////////////////////////////////CURR PROGRESS END
-
-
-
-    //continuously poll for offer candidates
-    // setInterval(async () => {
-    //   const offerCandidates = await blankspace.getOfferCandidates(localUser);
-    //   console.log("offerCandidates: ", offerCandidates);
-
-    //   if (offerCandidates.length > 0) {  //if user has offer candidates, send offer to connect 
-    //     for (var i = 0 ; i < offerCandidates.length ; i++) {
-    //       addPeer(true, localUser)
-    //     }
-        
-    //   }
-      
-    // }, 3000);
-
-    // console.log("answerCandidates: ", await blankspace.getAnswerCandidates(localUser));
-
-
-    //continuously poll currentPeersOnDoc - whenever new peer joins, addPeer (initiator: location.hash != newPeerHash)
-    // setInterval(async () => {
-    //   const x = await blankspace.getCurrentPeersOnDoc(docID);
-    //   console.log("x: ", x);
-    // }, 2000)
-    // let peer = new MyPeer("", myPrincipal)
-
-    // peers.push(peer)
-
-    // setInterval(listenForRequests(docID), 1000);
-
-    // const p = new Peer({
-    //   initiator: location.hash === '#1',
-    //   trickle: false
-    // })
-
-    // setPeer(p);
-
-    // //if initator, look for answers
-    // if (location.hash === '#1') {
-    //   var i = setInterval(async () => {
-    //     var s = await blankspace.getSignal(docID);
-    //     if (s != "empty") {
-    //       s = JSON.parse(s);
-    //       if (s.type == "answer") {
-    //         p.signal(s);
-    //         clearInterval(i);
-    //       }
-    //     }
-    //   }, 2000)
-    // }
-
-
-    // p.on('error', err => console.log('error', err))
-
-    // p.on('signal', async (data) => {
-    //   console.log('SIGNAL', JSON.stringify(data))
-    //   await blankspace.updateSignal(docID, JSON.stringify(data));
-    //   const s = await blankspace.getSignal(docID);
-    //   console.log("from MOTOKOOOOOO: ", s);
-    //   // document.querySelector('#outgoing').textContent = JSON.stringify(data)
-    // })
-
-    // if (location.hash != '#1') {
-    //   const s = await blankspace.getSignal(docID);
-    //   if (s != "empty") p.signal(JSON.parse(s));
-    // }
-
-    // p.on('connect', () => {
-    //   console.log('CONNECT')
-    //   connected = true;
-    //   console.log("connected p.on ", connected);
-    //   // p.send('whatever' + Math.random())
-    // })
-
-    // p.on('data', delta => {
-    //   console.log('delta: ' + delta)
-    //   setDelta(delta)
-    //   // quill.updateContents(JSON.parse(delta));
-    //   // console.log("quill: ", quill);
-    //   // quill.updateContents(new Delta()
-    //   //   .retain(6)                  // Keep 'Hello '
-    //   //   .delete(5)                  // 'World' is deleted
-    //   //   .insert('Quill')
-    //   //   .retain(1, { bold: true })  // Apply bold to exclamation mark
-    //   // );
-    // })
-
-    
+    var myOffered = [] 
+    setInterval( async () => { 
+      var peersActive = await blankspace.getActiveUsers();
+      var foundMe = false;  
+      await blankspace.addToCurrentUsers(myPrincipal); 
+      console.log("ACTIVE PEERS", peersActive)
+      if (peersActive.length != 0){
+        for(let i = 0; i < peersActive.length; i++){
+          if(myPrincipal == peersActive[i]){
+            foundMe = true; 
+            console.log('FOUND ME TRUE')
+          }
+          console.log("OFFERED", offered)
+          if(myPrincipal != peersActive[i] && foundMe == true && connected.indexOf(peersActive[i]) === -1 && myOffered.indexOf(peersActive[i]) === -1  ){
+            console.log('ADDING A USER')
+            const p = new MyPeer(peersActive[i], myPrincipal)
+            myOffered.push(peersActive[i])
+            setOffered((prevOffers) => [...prevOffers, peersActive[i]])
+            setPeers((prevPeers) => [...prevPeers, p])
+            myPeers.push(p)
+          }
+        }
+      }
+    }, 5000); 
+  
+    setInterval( async () => { 
+      var request = await blankspace.getConnectionRequest(myPrincipal); 
+      console.log("REQUEST", request)
+      if (request.length != 0){ 
+        if (request[0].typeof == 'offer'){
+          console.log('HANDLING OFFER', request)
+          handleOffer(request)
+        } else {
+          console.log('HANDLING ANSWER', request)
+          handleAnswer(request)
+        }
+      }
+    }, 1000);
 
   }, []);
 
-  // const prevPeersRef = useRef();
 
-  // async function SignalReceive(documentID) {
-  //   try {
-  //     var connectionDetails = await blankspace.getConnectionDetails(documentID)
-  //     console.log("In signal receive checking data", data)
-  //     var jsonData = {"type":connectionDetails[0].typeof, "sdp":connectionDetails[0].sdp}
-  //     return {initiator: connectionDetails[0].initiator, connectionDetails: jsonData};
-  //   } catch(e) {
-  //     return null;
-  //   }
-  // }
+  function handleOffer(request){ 
+    var recipient = request[0].initiator
+    var jsonData = {"type":request[0].typeof, "sdp":request[0].sdp}
+    var p = new MyPeer("", myPrincipal); 
+    p.setRecipient(recipient)
+    setPeers((prevPeers) => [...prevPeers, p])
+    myPeers.push(p)
+    p.getPeer().signal(jsonData)
+  } 
 
-  // async function listenForRequests(documentID){
-  //   let request = await SignalReceive(documentID)
-  //   recipient = request.initiator; 
-  //   peers[peers.length - 1].setRecipient(recipient)
-  //   if(recipient != null) { 
-  //     peers[peers.length - 1].getPeer().signal(message.connectionDetails);
-  //     peer = new MyPeer("", username)
-  //     peers.push(peer)
-  //   }
-  // }
+  function handleAnswer(request){ 
+    var recipient = request[0].initiator; 
+    console.log('RECIPIENT', recipient)
+    var jsonData = {"type":request[0].typeof, "sdp":request[0].sdp}
+    console.log('JSONDATA', jsonData)
+    for(let i = 0; i < myPeers.length; i++){
+      if(recipient == myPeers[i].recipient){
+        myPeers[i].getPeer().signal(jsonData)
+      }
+    }
+  }
 
   useEffect(() => {
     if (quill == null) return;
@@ -270,14 +178,15 @@ export default function TextEditor() {
         return;
       }
       // //send delta to peer
-
-      // peer.send(JSON.stringify(delta));
+      console.log("PEERS", myPeers)
+      for(let i = 0; i < myPeers.length; i++){
+        myPeers[i].getPeer().sendDeltas(JSON.stringify(delta))
+      }
       console.log("deltaaaa ", JSON.stringify(delta));
 
     }
 
     quill.on('text-change', handler)
-
     return () => {
       quill.off('text-change', handler)
     }
@@ -287,41 +196,6 @@ export default function TextEditor() {
     if (quill == null || delta == null) return;
     quill.updateContents(JSON.parse(delta));
   }, [delta]);
-
-  // useEffect(() => {
-  //   if (quill == null) return;
-  //   const handler = delta => {
-  //     quill.updateContents(delta)
-  //   }
-
-  //   //receive changes from peers
-  // }, [quill]);
-
-
-
-  // async function set() {
-  //     await blankspace.settext(value);
-  //     console.log(value);
-  // }
-
-  // async function get() {
-  //     var t = await blankspace.gettext();
-  //     console.log("text: ", t);
-  //     setValue(t);
-  //     return t;
-  // }
-
-
-
-  // useEffect(() => {
-  //   if (isMounted.current) {
-  //     set();
-  //   } else {
-  //     isMounted.current = true;
-  //   }
-  // }, [value]);
-
-
 
   return (
     <div className="container" ref={wrapperRef}></div>
