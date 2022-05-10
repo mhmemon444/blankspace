@@ -6,9 +6,6 @@ export const idlFactory = ({ IDL }) => {
     'typeof' : IDL.Text,
   });
   return IDL.Service({
-<<<<<<< HEAD
-    'getActiveUsers' : IDL.Func([], [IDL.Vec(IDL.Text)], []),
-=======
     'addToCurrentUsers' : IDL.Func([IDL.Text], [], []),
     'getActiveUsers' : IDL.Func([], [IDL.Vec(IDL.Text)], []),
     'getConnectionRequest' : IDL.Func(
@@ -22,7 +19,6 @@ export const idlFactory = ({ IDL }) => {
         [],
         [],
       ),
->>>>>>> fc55f13fc45640c8618345d91dc0e7f72af45c9c
   });
 };
 export const init = ({ IDL }) => { return []; };

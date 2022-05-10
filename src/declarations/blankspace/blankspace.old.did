@@ -1,8 +1,3 @@
-type List = 
- opt record {
-       text;
-       List;
-     };
 service : {
-  getActiveUsers: () -> (List);
+  getActiveUsers: () -> (vec text);
 }
