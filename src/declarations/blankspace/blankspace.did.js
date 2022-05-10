@@ -1,21 +1,24 @@
 export const idlFactory = ({ IDL }) => {
+  const ConnectionDetails = IDL.Record({
+    'sdp' : IDL.Text,
+    'initiator' : IDL.Text,
+    'recipient' : IDL.Text,
+    'typeof' : IDL.Text,
+  });
   return IDL.Service({
-    'addAnswerCandidate' : IDL.Func([IDL.Text, IDL.Text], [], []),
-    'addOfferCandidate' : IDL.Func([IDL.Text, IDL.Text], [], []),
-    'addPeerOnDoc' : IDL.Func([IDL.Text, IDL.Text], [], []),
-    'getAnswerCandidates' : IDL.Func(
+    'addToCurrentUsers' : IDL.Func([IDL.Text], [], []),
+    'getActiveUsers' : IDL.Func([], [IDL.Vec(IDL.Text)], []),
+    'getConnectionRequest' : IDL.Func(
         [IDL.Text],
-        [IDL.Vec(IDL.Text)],
-        ['query'],
+        [IDL.Opt(ConnectionDetails)],
+        [],
       ),
-    'getCurrentPeersOnDoc' : IDL.Func(
-        [IDL.Text],
-        [IDL.Vec(IDL.Text)],
-        ['query'],
+    'removeFromCurrent' : IDL.Func([IDL.Text], [], []),
+    'updateCurrentPeers' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text, IDL.Text],
+        [],
+        [],
       ),
-    'getOfferCandidates' : IDL.Func([IDL.Text], [IDL.Vec(IDL.Text)], ['query']),
-    'getSignal' : IDL.Func([IDL.Text], [IDL.Text], ['query']),
-    'updateSignal' : IDL.Func([IDL.Text, IDL.Text], [], []),
   });
 };
 export const init = ({ IDL }) => { return []; };

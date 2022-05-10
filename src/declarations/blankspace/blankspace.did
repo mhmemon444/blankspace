@@ -1,10 +1,14 @@
+type ConnectionDetails = 
+ record {
+   initiator: text;
+   recipient: text;
+   sdp: text;
+   typeof: text;
+ };
 service : {
-  addAnswerCandidate: (text, text) -> ();
-  addOfferCandidate: (text, text) -> ();
-  addPeerOnDoc: (text, text) -> ();
-  getAnswerCandidates: (text) -> (vec text) query;
-  getCurrentPeersOnDoc: (text) -> (vec text) query;
-  getOfferCandidates: (text) -> (vec text) query;
-  getSignal: (text) -> (text) query;
-  updateSignal: (text, text) -> ();
+  addToCurrentUsers: (text) -> ();
+  getActiveUsers: () -> (vec text);
+  getConnectionRequest: (text) -> (opt ConnectionDetails);
+  removeFromCurrent: (text) -> ();
+  updateCurrentPeers: (text, text, text, text) -> ();
 }

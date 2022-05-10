@@ -7,7 +7,7 @@ module {
     public type ConnectionDetails = { 
         typeof : Text; 
         sdp : Text; 
-        initiator : Principal; 
-        recipient : Principal; 
+        initiator : Text; 
+        recipient : Text; 
     };
 }

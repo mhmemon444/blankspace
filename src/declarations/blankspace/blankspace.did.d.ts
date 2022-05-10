@@ -1,11 +1,19 @@
 import type { Principal } from '@dfinity/principal';
+export interface ConnectionDetails {
+  'sdp' : string,
+  'initiator' : string,
+  'recipient' : string,
+  'typeof' : string,
+}
 export interface _SERVICE {
-  'addAnswerCandidate' : (arg_0: string, arg_1: string) => Promise<undefined>,
-  'addOfferCandidate' : (arg_0: string, arg_1: string) => Promise<undefined>,
-  'addPeerOnDoc' : (arg_0: string, arg_1: string) => Promise<undefined>,
-  'getAnswerCandidates' : (arg_0: string) => Promise<Array<string>>,
-  'getCurrentPeersOnDoc' : (arg_0: string) => Promise<Array<string>>,
-  'getOfferCandidates' : (arg_0: string) => Promise<Array<string>>,
-  'getSignal' : (arg_0: string) => Promise<string>,
-  'updateSignal' : (arg_0: string, arg_1: string) => Promise<undefined>,
+  'addToCurrentUsers' : (arg_0: string) => Promise<undefined>,
+  'getActiveUsers' : () => Promise<Array<string>>,
+  'getConnectionRequest' : (arg_0: string) => Promise<[] | [ConnectionDetails]>,
+  'removeFromCurrent' : (arg_0: string) => Promise<undefined>,
+  'updateCurrentPeers' : (
+      arg_0: string,
+      arg_1: string,
+      arg_2: string,
+      arg_3: string,
+    ) => Promise<undefined>,
 }
