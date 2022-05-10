@@ -1,4 +1,14 @@
+type ConnectionDetails = 
+ record {
+   initiator: text;
+   recipient: text;
+   sdp: text;
+   typeof: text;
+ };
 service : {
-  gettext: () -> (text) query;
-  settext: (text) -> ();
+  addToCurrentUsers: (text) -> ();
+  getActiveUsers: () -> (vec text);
+  getConnectionRequest: (text) -> (opt ConnectionDetails);
+  removeFromCurrent: (text) -> ();
+  updateCurrentPeers: (text, text, text, text) -> ();
 }
