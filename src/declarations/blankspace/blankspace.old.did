@@ -1,10 +1,8 @@
+type List = 
+ opt record {
+       text;
+       List;
+     };
 service : {
-  addAnswerCandidate: (text, text) -> ();
-  addOfferCandidate: (text, text) -> ();
-  addPeerOnDoc: (text, text) -> ();
-  getAnswerCandidates: (text) -> (vec text) query;
-  getCurrentPeersOnDoc: (text) -> (vec text) query;
-  getOfferCandidates: (text) -> (vec text) query;
-  getSignal: (text) -> (text) query;
-  updateSignal: (text, text) -> ();
+  getActiveUsers: () -> (List);
 }

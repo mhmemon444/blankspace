@@ -7,6 +7,7 @@ import "./TextEditor.css";
 import { blankspace } from "../../../declarations/blankspace/index";
 import MyPeer from "./MyPeer";
 import Peer from "simple-peer";
+import { off } from "process";
 
 const TOOLBAR_OPTIONS = [
   [{ header: [1, 2, 3, 4, 5, 6, false] }],
@@ -50,9 +51,9 @@ export default function TextEditor() {
     
   }, [])
 
-  const addPeer = () => {
+  const addPeer = (isInitiator, peer) => {
     const p = new Peer({
-        initiator: location.hash != peers[0],
+        initiator: isInitiator,
         trickle: false
       })
     
@@ -71,12 +72,12 @@ export default function TextEditor() {
     // }
 
 
-    // p.on('error', err => console.log('error', err))
+    p.on('error', err => console.log('error', err))
 
     p.on('signal', async (data) => {
       console.log('SIGNAL', JSON.stringify(data))
-      await blankspace.updateSignal(docID, JSON.stringify(data));
-      const s = await blankspace.getSignal(docID);
+      await blankspace.updateUserSignal(peer, JSON.stringify(data));
+      const s = await blankspace.getSignal(peer);
       console.log("from MOTOKOOOOOO: ", s);
       // document.querySelector('#outgoing').textContent = JSON.stringify(data)
     })
@@ -108,26 +109,62 @@ export default function TextEditor() {
   }
   //document onload:
   useEffect(async () => {
+    console.log("curUsersOnDoc: ", await blankspace.getActiveUsers());
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // await blankspace.addPeerOnDoc(docID, location.hash);
+    
     ///////////////////////////////////////CURR PROGRESS START
-    const x = await blankspace.getCurrentPeersOnDoc(docID);
+    // const x = await blankspace.getCurrentPeersOnDoc(docID); //["hassan"]
     // console.log(x);
 
-    var localUser = location.hash;
+    
 
-    if (x.length > 0) { //if other peers on doc, you are an offerCandidate to them and they are answerCandidates to you
-      for (var i = 0; i<x.length; i++) { //for each peer already on doc
-        //add peer to your answerCandidates, and add yourself to their offerCandidates
-        var remotePeer = x[i];
-        await blankspace.addAnswerCandidate(localUser, remotePeer);
-        await blankspace.addOfferCandidate(remotePeer, localUser);
-      }
-    } else { //no other peers on doc (you are the first and only one currently on doc)
-      await blankspace.addPeerOnDoc(docID, localUser);
-    }
+    // console.log("start answerCandidates: ", await blankspace.getAnswerCandidates(localUser));
 
-    console.log("answerCandidates: ", await blankspace.getAnswerCandidates(localUser));
+    // if (x.length > 0) { //if other peers on doc, you are an offerCandidate to them and they are answerCandidates to you
+    //   for (var i = 0; i<x.length; i++) { //for each peer already on doc
+    //     //add peer to your answerCandidates, and add yourself to their offerCandidates
+    //     var remotePeer = x[i];
+    //     await blankspace.addAnswerCandidate(localUser, remotePeer);
+    //     await blankspace.addOfferCandidate(remotePeer, localUser);
+    //   }
+    // } else { //no other peers on doc (you are the first and only one currently on doc)
+    //   await blankspace.addPeerOnDoc(docID, localUser);
+    // }
+
+    
     ///////////////////////////////////////CURR PROGRESS END
+
+
+
+    //continuously poll for offer candidates
+    // setInterval(async () => {
+    //   const offerCandidates = await blankspace.getOfferCandidates(localUser);
+    //   console.log("offerCandidates: ", offerCandidates);
+
+    //   if (offerCandidates.length > 0) {  //if user has offer candidates, send offer to connect 
+    //     for (var i = 0 ; i < offerCandidates.length ; i++) {
+    //       addPeer(true, localUser)
+    //     }
+        
+    //   }
+      
+    // }, 3000);
+
+    // console.log("answerCandidates: ", await blankspace.getAnswerCandidates(localUser));
 
 
     //continuously poll currentPeersOnDoc - whenever new peer joins, addPeer (initiator: location.hash != newPeerHash)
