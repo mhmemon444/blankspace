@@ -1,6 +1,8 @@
 import Peer from "simple-peer"; 
+import { blankspace } from "../../../declarations/blankspace/index";
 
-class MyPeer {
+// class to wrap a simple peer object, maintains functions for a Peer
+ class MyPeer {
   constructor(recipient, myPrincipal) {
     this.recipient = recipient;
     this.myPrincipal = myPrincipal;
@@ -10,23 +12,20 @@ class MyPeer {
       trickle: false,
     });
 
-    this.peer.on("signal", (data) => {
-      console.log("this.peer.on.signal: ", data);
-      if (this.recipient.length > 0)
-        SignalSend(this.myPrincipal, this.recipient, data);
+    this.peer.on("signal", async (data) => {
+      if (this.recipient.length > 0){
+        await blankspace.updateCurrentPeers(this.myPrincipal, this.recipient, data.type, data.sdp);
+      }
     });
 
     this.peer.on("connect", () => {
-      console.log("connect");
-      this.peer.send("Hello " + this.recipient);
+      setConnected((prevConnected) => [...prevConnected, this.recipient])
     });
 
-    this.peer.on("data", (data) => {
-      console.log("data: ", data);
-      var p = document.createElement("p");
-      p.innerText = data;
-      document.getElementById("log").appendChild(p);
-    });
+    this.peer.on('data', delta => {
+      console.log('delta: ' + delta)
+      setDelta(delta)
+    })
 
     this.peer.on("error", (err) => console.log("error", err));
   }

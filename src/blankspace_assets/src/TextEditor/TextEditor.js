@@ -24,16 +24,19 @@ export default function TextEditor() {
   const [delta, setDelta] = useState(null);
   const [peers, setPeers] = useState([]); 
   const [connected, setConnected] = useState([]); 
+  const [connectedPeers, setConnectedPeers] = useState([]);
   const [offered, setOffered] = useState([]);
   
 
+  // Remove from current list on exit TODO
   window.addEventListener('beforeunload', async function (e) {
     await blankspace.removeFromCurrent(myPrincipal);
   });
 
-  const docID = "abcd1111";
+  // Pulling in user id from URL as a hash '#NAME'
   const myPrincipal = location.hash
 
+  // Sets up the wrapper (a div around the quill) for quill front end element
   const wrapperRef = useCallback((wrapper) => {
     if (wrapper == null) return;
 
@@ -45,6 +48,7 @@ export default function TextEditor() {
     
   }, [])
 
+  // class to wrap a simple peer object, maintains 
   class MyPeer {
     constructor(recipient, myPrincipal) {
       this.recipient = recipient;
@@ -57,14 +61,15 @@ export default function TextEditor() {
   
       this.peer.on("signal", async (data) => {
         if (this.recipient.length > 0){
-          // console.log("SENDING", data, recipient)
+          console.log('SENDING to', this.recipient, data)
           await blankspace.updateCurrentPeers(this.myPrincipal, this.recipient, data.type, data.sdp);
         }
       });
   
       this.peer.on("connect", () => {
-        // console.log("CONNECTED TO", this.recipient);
+        console.log("CONNECTED TO", this.recipient)
         setConnected((prevConnected) => [...prevConnected, this.recipient])
+        setConnectedPeers((prevconnectedPeers) => [...prevconnectedPeers, this.peer])
       });
   
       this.peer.on('data', delta => {
@@ -82,12 +87,11 @@ export default function TextEditor() {
     getPeer() {
       return this.peer;
     }
-  
-    sendDeltas(delta) {
-      console.log('delta sending', delta)
-      this.peer.send(delta);
-    }
+
   }
+
+
+  ////// FOR DEBUGGING 
 
   useEffect(() => {
     console.log('Offered to peer', offered)
@@ -103,7 +107,8 @@ export default function TextEditor() {
     console.log('ADDING PEER', peers)
   }, [peers]);
   
-  
+  //TODO: 
+  //my offered should be in a state, if doesnt turn into connected, it should reset 
   var myPeers = [] 
   //document onload:
   useEffect(async () => {
@@ -112,19 +117,18 @@ export default function TextEditor() {
       var peersActive = await blankspace.getActiveUsers();
       var foundMe = false;  
       await blankspace.addToCurrentUsers(myPrincipal); 
-      // console.log("ACTIVE PEERS", peersActive)
+      console.log("ACTIVE PEERS", peersActive)
       if (peersActive.length != 0){
         for(let i = 0; i < peersActive.length; i++){
           if(myPrincipal == peersActive[i]){
             foundMe = true; 
-            // console.log('FOUND ME TRUE')
+            console.log('FOUND ME TRUE')
           }
-          // console.log("OFFERED", offered)
+          console.log("OFFERED", offered)                
           if(myPrincipal != peersActive[i] && foundMe == true && connected.indexOf(peersActive[i]) === -1 && myOffered.indexOf(peersActive[i]) === -1  ){
-            // console.log('ADDING A USER')
+            console.log('ADDING A USER')
             const p = new MyPeer(peersActive[i], myPrincipal)
             myOffered.push(peersActive[i])
-            // setOffered((prevOffers) => [...prevOffers, peersActive[i]])
             setPeers((prevPeers) => [...prevPeers, p])
             myPeers.push(p)
           }
@@ -137,10 +141,10 @@ export default function TextEditor() {
       console.log("REQUEST", request)
       if (request.length != 0){ 
         if (request[0].typeof == 'offer'){
-          // console.log('HANDLING OFFER', request)
+          console.log('HANDLING OFFER', request)
           handleOffer(request)
         } else {
-          // console.log('HANDLING ANSWER', request)
+          console.log('HANDLING ANSWER', request)
           handleAnswer(request)
         }
       }
@@ -148,7 +152,7 @@ export default function TextEditor() {
 
   }, []);
 
-
+  // when an offer request is recieved from another peer, handle using this function
   function handleOffer(request){ 
     var recipient = request[0].initiator
     var jsonData = {"type":request[0].typeof, "sdp":request[0].sdp}
@@ -159,11 +163,12 @@ export default function TextEditor() {
     p.getPeer().signal(jsonData)
   } 
 
+  // when an answer request is received from another peer, handle using this function
   function handleAnswer(request){ 
     var recipient = request[0].initiator; 
-    // console.log('RECIPIENT', recipient)
+    console.log('RECIPIENT', recipient)
     var jsonData = {"type":request[0].typeof, "sdp":request[0].sdp}
-    // console.log('JSONDATA', jsonData)
+    console.log('JSONDATA', jsonData)
     for(let i = 0; i < myPeers.length; i++){
       if(recipient == myPeers[i].recipient){
         myPeers[i].getPeer().signal(jsonData)
@@ -171,6 +176,7 @@ export default function TextEditor() {
     }
   }
 
+  // when text is updated, send to all connected peers
   useEffect(() => {
     if (quill == null) return;
     const handler = (delta, oldDelta, source) => {
@@ -178,9 +184,9 @@ export default function TextEditor() {
         return;
       }
       // //send delta to peer
-      console.log("PEERS", peers)
-      for(let i = 0; i < peers.length; i++){
-        peers[i].sendDeltas(JSON.stringify(delta))
+      console.log("PEERS", connectedPeers)
+      for(let i = 0; i < connectedPeers.length; i++){
+        connectedPeers[i].send(JSON.stringify(delta))
       }
       console.log("deltaaaa ", JSON.stringify(delta));
 
@@ -190,7 +196,7 @@ export default function TextEditor() {
     return () => {
       quill.off('text-change', handler)
     }
-  }, [quill, peers]);
+  }, [quill, connectedPeers]);
 
   useEffect(() => {
     if (quill == null || delta == null) return;
