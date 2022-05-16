@@ -25,7 +25,7 @@ actor {
 
   public func updateCurrentPeers(initiator : Text, recipient : Text, typeof : Text, sdp : Text) : async() {
     // find the recipient in the hashmap
-    // add connectionDetails to the list 
+    // add connectionDetails to the list.
     var connectionRequests : List.List<ConnectionDetails> = switch(currentPeersOnDoc.get(recipient)){
       case null List.nil<ConnectionDetails>(); 
       case (?result) result;
