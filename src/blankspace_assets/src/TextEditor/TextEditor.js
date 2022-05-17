@@ -80,12 +80,13 @@ export default function TextEditor() {
       })
 
       this.peer.on("error", (err) => {
-        console.log("error", err)
+        console.log("Error for Peer", this.recipient)
         this.peer.destroy() 
-        var index = offered.indexOf(recipient)
+        var index = offered.indexOf(this.recipient)
         setOffered(offered.splice(index, 1))
-        index = connected.indexOf(recipient)
+        index = connected.indexOf(this.recipient)
         setConnected(connected.splice(index, 1))
+        setConnectedPeers(prevConnected => prevConnected.filter(function(e){ return e.recipient !== recipient}))
       });
     }
 
@@ -103,23 +104,31 @@ export default function TextEditor() {
 
   useEffect(() => {
     async function activeUserUpdate(){ 
+      // get active users from motoko
       var peersActive = await blankspace.getActiveUsers();
       var foundMe = false;  
+
+      //add myself to the current users (if im not already added)
       await blankspace.addToCurrentUsers(myPrincipal); 
+
+
       console.log("ACTIVE PEERS", peersActive)
+
+      // if there are peers which have also connected 
       if (peersActive.length != 0){
         for(let i = 0; i < peersActive.length; i++){
+
+          //only create offers for users which come after me in the list 
           if(myPrincipal == peersActive[i]){
             foundMe = true; 
           }
+
           console.log("OFFERED", offered)     
           console.log("CONNECTED", connected)              
           if(myPrincipal != peersActive[i] && foundMe == true){
             if(connected.indexOf(peersActive[i]) === -1 && offered.indexOf(peersActive[i]) === -1  ){
+              // create an offer for this recipient 
               createOffer(peersActive[i])
-              setTimeout(() => { 
-                clearOfferNA(peersActive[i])
-              }, 30000)
             }
           }
         } 
@@ -132,8 +141,11 @@ export default function TextEditor() {
 
   useEffect(() => {
     async function connectionRequests() {
+      //get connections which have been sent for my principal  
       var request = await blankspace.getConnectionRequest(myPrincipal);
+
       if (request.length != 0) {
+        //if the request is an offer, prepare to send an answer, otherwise if it is an answer, try to connect 
         if (request[0].typeof == 'offer') {
           console.log('HANDLING OFFER', request)
           handleOffer(request)
@@ -147,32 +159,62 @@ export default function TextEditor() {
     return () => clearInterval(intervalTwo);
   }, [])
 
+  useEffect(() => { 
+
+    for(let i = 0; i < connectedPeers.length; i++ ){ 
+      
+    }
+
+  }, [])
+
   //if there is no response from an offer, destroy the peer, take back the offer and resend
   function clearOfferNA(recipient){ 
+    // if recipient hasnt connected 
     if(connected.indexOf(recipient) === -1){
+      //remove from offered and from myPeers to create a new offer 
       const index = offered.indexOf(recipient)
       setOffered(offered.splice(index, 1))
+
+      //kill the peer first 
       let recipientPeer = myPeers.filter(function(e){ return e.recipient === recipient})
-      console.log('Recipient Peer', recipientPeer)
       recipientPeer[0].getPeer().destroy()
       myPeers = myPeers.filter(function(e){ return e.recipient !== recipient})
     }
   }
 
-  //TODO: if you have received an offer and a new offer comes in from the same person which already has a peer waiting for it, destroy the current peer and set up a new one 
-
-
-
   // create an offer for a particular recipient 
   function createOffer(recipient){ 
-    console.log('RECIPIENT BEING OFFERED', recipient)
-    const p = new MyPeer(recipient, myPrincipal)
-    myPeers.push(p)
+
+    //only create offer is a peer/offer does not already exist for that recipient 
+    var createdPeer = false 
+    for (let i =0; i < myPeers.length; i++){
+      if (recipient === myPeers[i].recipient){
+        createdPeer = true
+      }
+    }
+    if(offered.indexOf(recipient) === -1 && createdPeer === false){
+      console.log('RECIPIENT BEING OFFERED', recipient)
+      const p = new MyPeer(recipient, myPrincipal)
+      myPeers.push(p)
+      // create a 30 second wait to delete offer if no answer is recieved 
+      setTimeout(() => { 
+        clearOfferNA(recipient)
+      }, 30000)
+    }
   }
 
-  // when an offer request is recieved from another peer, handle using this function
+  // when an offer request is recieved from another peer, handle using this function, ensuring to remove a previous peer created from them
   function handleOffer(request){ 
     var recipient = request[0].initiator
+
+    // Receive an offer, if the peer exists from a previous offer, remove and kill it
+    if(myPeers.indexOf(recipient) !== -1){
+      var killPeer = myPeers.filter(function(e){ return e.recipient === recipient})
+      killPeer.getPeer().destroy()
+      myPeers = myPeers.filter(function(e){ return e.recipient !== recipient})
+    }
+    
+    // create a peer for this particular offer, add to myPeers list, and signal back 
     var jsonData = {"type":request[0].typeof, "sdp":request[0].sdp}
     var p = new MyPeer("", myPrincipal); 
     p.setRecipient(recipient)
@@ -182,6 +224,7 @@ export default function TextEditor() {
 
   // when an answer request is received from another peer, handle using this function
   function handleAnswer(request){ 
+    // if its an answer, signal back that you have received the answer and connect (connection happens through the signal)
     var recipient = request[0].initiator; 
     console.log('ANSWER FROM RECIPIENT', recipient)
     var jsonData = {"type":request[0].typeof, "sdp":request[0].sdp}
