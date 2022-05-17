@@ -67,6 +67,7 @@ export default function TextEditor() {
       });
   
       this.peer.on("connect", () => {
+        // see if there is a way to remove connected list (only maintain connectedPeers and myPeers)
         console.log("CONNECTED TO", this.recipient)
         setConnected(connected.push(this.recipient))
         setConnectedPeers((prevConnected) => [...prevConnected, this])
@@ -86,7 +87,9 @@ export default function TextEditor() {
         setOffered(offered.splice(index, 1))
         index = connected.indexOf(this.recipient)
         setConnected(connected.splice(index, 1))
-        setConnectedPeers(prevConnected => prevConnected.filter(function(e){ return e.recipient !== recipient}))
+        index = connectedPeers.indexOf(recipient)
+        setConnectedPeers(connectedPeers.splice(index, 1))
+        // setConnectedPeers(prevConnected => prevConnected.filter(function(e){ return e.recipient !== recipient}))
       });
     }
 
@@ -98,7 +101,8 @@ export default function TextEditor() {
       this.recipient = recipient;
     }
   }
-  
+
+  //TODO: Loop through connectedpeers to check if they're still connected -- double check that when a peer breaks( for whatever reason ) it is getting correctly removed from connectedPeers
   
   var myPeers = [] 
 
@@ -125,6 +129,9 @@ export default function TextEditor() {
 
           console.log("OFFERED", offered)     
           console.log("CONNECTED", connected)              
+          console.log("CONNECTED PEERS", connectedPeers)
+          console.log("MY PEERS", myPeers)
+    
           if(myPrincipal != peersActive[i] && foundMe == true){
             if(connected.indexOf(peersActive[i]) === -1 && offered.indexOf(peersActive[i]) === -1  ){
               // create an offer for this recipient 
@@ -159,13 +166,7 @@ export default function TextEditor() {
     return () => clearInterval(intervalTwo);
   }, [])
 
-  useEffect(() => { 
-
-    for(let i = 0; i < connectedPeers.length; i++ ){ 
-      
-    }
-
-  }, [])
+  
 
   //if there is no response from an offer, destroy the peer, take back the offer and resend
   function clearOfferNA(recipient){ 
@@ -206,14 +207,7 @@ export default function TextEditor() {
   // when an offer request is recieved from another peer, handle using this function, ensuring to remove a previous peer created from them
   function handleOffer(request){ 
     var recipient = request[0].initiator
-
-    // Receive an offer, if the peer exists from a previous offer, remove and kill it
-    if(myPeers.indexOf(recipient) !== -1){
-      var killPeer = myPeers.filter(function(e){ return e.recipient === recipient})
-      killPeer.getPeer().destroy()
-      myPeers = myPeers.filter(function(e){ return e.recipient !== recipient})
-    }
-    
+    destroyPeer(recipient)
     // create a peer for this particular offer, add to myPeers list, and signal back 
     var jsonData = {"type":request[0].typeof, "sdp":request[0].sdp}
     var p = new MyPeer("", myPrincipal); 
@@ -221,6 +215,21 @@ export default function TextEditor() {
     myPeers.push(p)
     p.peer.signal(jsonData)
   } 
+
+  function destroyPeer(recipient){ 
+    var createdPeer = false 
+    for (let i =0; i < myPeers.length; i++){
+      if (recipient === myPeers[i].recipient){
+        createdPeer = true
+      }
+    }
+    if(createdPeer){
+      console.log('destroyed')
+      var killPeer = myPeers.filter(function(e){ return e.recipient === recipient})
+      killPeer[0].getPeer().destroy()
+      myPeers = myPeers.filter(function(e){ return e.recipient !== recipient})
+    }
+  }
 
   // when an answer request is received from another peer, handle using this function
   function handleAnswer(request){ 
