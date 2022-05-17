@@ -24,18 +24,6 @@ export default function TextEditor() {
   const [connected, setConnected] = useState([]); 
   const [offered, setOffered] = useState([]); 
   const [connectedPeers, setConnectedPeers] = useState([]);
-  const offeredRef = useRef([])
-  const connectedRef = useRef([])
-
-
-  useEffect(() => {
-    offeredRef.current = offered;
-  })
-
-  useEffect(() => {
-    connectedRef.current = connected;
-  })
-
 
   // Remove from current list on exit TODO
   window.addEventListener('beforeunload', async function (e) {
@@ -81,7 +69,9 @@ export default function TextEditor() {
       this.peer.on("connect", () => {
         console.log("CONNECTED TO", this.recipient)
         setConnected(connected.push(this.recipient))
-        setConnectedPeers((prevconnectedPeers) => [...prevconnectedPeers, this.peer])
+        setConnectedPeers((prevConnected) => [...prevConnected, this])
+        const index = offered.indexOf(recipient)
+        setOffered(offered.splice(index, 1))
       });
   
       this.peer.on('data', delta => {
@@ -89,7 +79,18 @@ export default function TextEditor() {
         setDelta(delta)
       })
 
-      this.peer.on("error", (err) => console.log("error", err));
+      this.peer.on("error", (err) => {
+        console.log("error", err)
+        this.peer.destroy() 
+        var index = offered.indexOf(recipient)
+        setOffered(offered.splice(index, 1))
+        index = connected.indexOf(recipient)
+        setConnected(connected.splice(index, 1))
+      });
+    }
+
+    getPeer(){ 
+      return this.peer;
     }
   
     setRecipient(recipient) {
@@ -118,7 +119,7 @@ export default function TextEditor() {
               createOffer(peersActive[i])
               setTimeout(() => { 
                 clearOfferNA(peersActive[i])
-              }, 20000)
+              }, 30000)
             }
           }
         } 
@@ -149,10 +150,11 @@ export default function TextEditor() {
   //if there is no response from an offer, destroy the peer, take back the offer and resend
   function clearOfferNA(recipient){ 
     if(connected.indexOf(recipient) === -1){
-      setOffered(offered.filter(function(e) { return e !== recipient}))
+      const index = offered.indexOf(recipient)
+      setOffered(offered.splice(index, 1))
       let recipientPeer = myPeers.filter(function(e){ return e.recipient === recipient})
       console.log('Recipient Peer', recipientPeer)
-      recipientPeer.peer.destroy()
+      recipientPeer[0].getPeer().destroy()
       myPeers = myPeers.filter(function(e){ return e.recipient !== recipient})
     }
   }
@@ -186,7 +188,7 @@ export default function TextEditor() {
     console.log('MYPEERS', myPeers)
     for(let i = 0; i < myPeers.length; i++){
       if(recipient == myPeers[i].recipient){
-        myPeers[i].peer.signal(jsonData)
+        myPeers[i].getPeer().signal(jsonData)
       }
     }
   }
@@ -202,7 +204,7 @@ export default function TextEditor() {
       // //send delta to peer
       console.log("Connected PEERS", connectedPeers)
       for(let i = 0; i < connectedPeers.length; i++){
-        connectedPeers[i].send(JSON.stringify(delta))
+        connectedPeers[i].getPeer().send(JSON.stringify(delta))
       }
       console.log("deltaaaa ", JSON.stringify(delta));
 
