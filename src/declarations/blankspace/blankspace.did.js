@@ -13,12 +13,14 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Opt(ConnectionDetails)],
         [],
       ),
+    'getUsersDocs' : IDL.Func([IDL.Text], [IDL.Vec(IDL.Text)], ['query']),
     'removeFromCurrent' : IDL.Func([IDL.Text], [], []),
     'updateCurrentPeers' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text, IDL.Text],
         [],
         [],
       ),
+    'updateUsersDocs' : IDL.Func([IDL.Text, IDL.Text], [], []),
   });
 };
 export const init = ({ IDL }) => { return []; };
