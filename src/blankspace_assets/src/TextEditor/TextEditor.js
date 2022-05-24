@@ -87,9 +87,9 @@ export default function TextEditor() {
         setOffered(offered.splice(index, 1))
         index = connected.indexOf(this.recipient)
         setConnected(connected.splice(index, 1))
-        index = connectedPeers.indexOf(recipient)
-        setConnectedPeers(connectedPeers.splice(index, 1))
-        // setConnectedPeers(prevConnected => prevConnected.filter(function(e){ return e.recipient !== recipient}))
+        // index = connectedPeers.indexOf(recipient)
+        // setConnectedPeers(connectedPeers.splice(index, 1))
+        setConnectedPeers(prevConnected => prevConnected.filter(function(e){ return e.recipient !== recipient}))
       });
     }
 
