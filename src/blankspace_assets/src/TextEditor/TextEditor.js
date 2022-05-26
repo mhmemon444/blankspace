@@ -25,10 +25,10 @@ export default function TextEditor() {
   const [offered, setOffered] = useState([]); 
   const [connectedPeers, setConnectedPeers] = useState([]);
 
-  // Remove from current list on exit TODO
-  window.addEventListener('beforeunload', async function (e) {
-    await blankspace.removeFromCurrent(myPrincipal);
-  });
+  // // Remove from current list on exit TODO
+  // window.addEventListener('beforeunload', async function (e) {
+  //   await blankspace.removeFromCurrent(myPrincipal);
+  // });
 
   // Pulling in user id from URL as a hash '#NAME'
   const myPrincipal = location.hash

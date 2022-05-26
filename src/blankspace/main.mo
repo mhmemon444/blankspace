@@ -7,63 +7,53 @@ import HashMap "mo:base/HashMap";
 import Text "mo:base/Text";
 import Array "mo:base/Array";
 import Iter "mo:base/Iter";
+import Signalling "canister:signalling";
 
 
-actor { 
+actor Blankspace { 
 
   
 
+  // all the additional document content 
   var principalDocsHashmap = HashMap.HashMap<Principal, List.List<Text>>(1, Principal.equal, Principal.hash);
   var docsPrincipalHashmap = HashMap.HashMap<Text, List.List<Principal>>(1, Text.equal, Text.hash);  
   var docsContent = HashMap.HashMap<Text, Text>(1, Text.equal, Text.hash);
 
 
 
-  public type ConnectionDetails = Types.ConnectionDetails; 
-  var currentPeersOnDoc = HashMap.HashMap<Text, List.List<ConnectionDetails>>(1, Text.equal, Text.hash);
 
+
+
+
+
+
+
+  // functions for connecting peers which are active on the same document 
+  public type ConnectionDetails = Types.ConnectionDetails; 
 
   public func updateCurrentPeers(initiator : Text, recipient : Text, typeof : Text, sdp : Text) : async() {
-    // find the recipient in the hashmap
-    // add connectionDetails to the list.
-    var connectionRequests : List.List<ConnectionDetails> = switch(currentPeersOnDoc.get(recipient)){
-      case null List.nil<ConnectionDetails>(); 
-      case (?result) result;
-    }; 
-    connectionRequests := List.push({typeof = typeof; sdp = sdp; initiator = initiator; recipient = recipient;}, connectionRequests);
-    currentPeersOnDoc.put(recipient, connectionRequests); 
+    await Signalling.addConnectionRequest(initiator, recipient, typeof, sdp); 
   };
 
   public func getActiveUsers() : async [Text]{ 
-    // get the keys from the hashmap 
-    var keyList : List.List<Text> = List.nil(); 
-    for (x in currentPeersOnDoc.keys()){
-      keyList := List.push(x, keyList);
-    };
-    return ( List.toArray<Text>(keyList) ); 
+    let activeUsers = await Signalling.getActiveUsers(); 
+    return activeUsers; 
   };
 
+  //this can be changed to shared(msg)
   public func addToCurrentUsers(principal : Text) : async() { 
-    // add a new key (principal name) with an empty list 
-    currentPeersOnDoc.put(principal, List.nil());
+    await Signalling.addActiveUser(principal); 
   };
 
+  //this can be changed to shared(msg)
   public func getConnectionRequest(principal : Text) : async ?ConnectionDetails { 
-    // find key for the principal 
-    // pop a connectionRequest from the list 
-    let connectionRequests : List.List<ConnectionDetails> = switch(currentPeersOnDoc.get(principal)){
-      case null List.nil<ConnectionDetails>(); 
-      case (?result) result; 
-    };
-    let (connectionRequest, poppedList) = List.pop(connectionRequests);
-    currentPeersOnDoc.put(principal, poppedList); 
-    return connectionRequest;
+    let connectionRequest = await Signalling.getConnectionRequest(principal); 
   };
   
-
-  public func removeFromCurrent(principal : Text) : async () { 
-    let removed = currentPeersOnDoc.remove(principal); 
-  };
+  // //this can be changed to shared(msg)
+  // public func removeFromCurrent(principal : Text) : async () { 
+  //   await Signalling.removeActiveUser(principal);
+  // };
 
 
 

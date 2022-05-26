@@ -6,8 +6,8 @@ type ConnectionDetails =
    typeof: text;
  };
 service : {
-  addToCurrentUsers: (text) -> ();
+  addActiveUser: (text) -> ();
+  addConnectionRequest: (text, text, text, text) -> ();
   getActiveUsers: () -> (vec text);
   getConnectionRequest: (text) -> (opt ConnectionDetails);
-  updateCurrentPeers: (text, text, text, text) -> ();
 }

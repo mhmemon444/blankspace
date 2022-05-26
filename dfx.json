@@ -3,6 +3,10 @@
     "blankspace": {
       "main": "src/blankspace/main.mo",
       "type": "motoko"
+    },    
+    "signalling": {
+      "main": "src/signalling/main.mo",
+      "type": "motoko"
     },
     "blankspace_assets": {
       "dependencies": [
