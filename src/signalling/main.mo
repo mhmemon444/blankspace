@@ -14,7 +14,7 @@ actor Signalling {
         currentActivePeers.getConnectionRequest(principal);
     };
 
-    //this can be changed to use shared(msg) when we move to principals. This will replace initiator
+    // NOTE: this can be changed to use shared(msg) when we move to principals. This will replace initiator
     public func addConnectionRequest(initiator : Text, recipient : Text, typeof : Text, sdp : Text) : async() {
         currentActivePeers.addConnectionRequest(initiator, recipient, typeof, sdp); 
     };
@@ -23,6 +23,10 @@ actor Signalling {
         currentActivePeers.addActiveUser(principal); 
     };
 
+
+
+    // NOTE: this function should realistically be separated from Signalling canister at it has more to do with implementation of 
+    // blankspace rather than direct signalling between peers 
     public func getActiveUsers() : async [Text]{ 
         currentActivePeers.getActiveUsers();
     };

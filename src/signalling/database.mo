@@ -7,7 +7,7 @@ module {
 
     public class Connections() { 
 
-        public type ConnectionDetails = Types.ConnectionDetails; 
+        public type ConnectionDetails = Types.ConnectionDetails;  
         let connectionsMap = HashMap.HashMap<Text, List.List<ConnectionDetails>>(1, Text.equal, Text.hash);
 
         public func addActiveUser(principal : Text){ 
@@ -42,7 +42,7 @@ module {
             return connectionRequest;
         };
 
-        //this should potentially be handled in a different location 
+        // NOTE: this should be handled in BLANKSPACE as it has more to do with implementation of the active users on blankspace
         public func getActiveUsers(): [Text]{ 
             // get the keys from the hashmap 
             var keyList : List.List<Text> = List.nil(); 

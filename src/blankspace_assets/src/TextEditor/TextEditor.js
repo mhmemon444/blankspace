@@ -25,6 +25,8 @@ export default function TextEditor() {
   const [offered, setOffered] = useState([]); 
   const [connectedPeers, setConnectedPeers] = useState([]);
 
+  // NOTE: this was my attempt at removing users from an active user, here when a user xs out they get disconnected 
+  // although there should be another approach? maybe a button a user clicks on the front end to deactivate connected mode? 
   // // Remove from current list on exit TODO
   // window.addEventListener('beforeunload', async function (e) {
   //   await blankspace.removeFromCurrent(myPrincipal);

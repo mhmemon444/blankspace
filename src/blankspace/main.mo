@@ -21,6 +21,7 @@ actor Blankspace {
 
 
 
+  // NOTE: functions for handling multiple docs should go here
 
 
 
@@ -28,13 +29,21 @@ actor Blankspace {
 
 
 
-  // functions for connecting peers which are active on the same document 
+
+  /** 
+
+      CONNECTING PEERS 
+
+  **/ 
+
   public type ConnectionDetails = Types.ConnectionDetails; 
 
   public func updateCurrentPeers(initiator : Text, recipient : Text, typeof : Text, sdp : Text) : async() {
     await Signalling.addConnectionRequest(initiator, recipient, typeof, sdp); 
   };
 
+  // NOTE: this should be handled here without calling to signalling, signalling should only know about specific users and their connections 
+  // not the logic behind WHO is on a specific doc and is active for a particular user 
   public func getActiveUsers() : async [Text]{ 
     let activeUsers = await Signalling.getActiveUsers(); 
     return activeUsers; 
@@ -45,11 +54,15 @@ actor Blankspace {
     await Signalling.addActiveUser(principal); 
   };
 
-  //this can be changed to shared(msg)
+  // NOTE: this can be changed to shared(msg) so we no longer require princicpal 
+  // NOTE: it should be ok to use ConnectionDetails here (despite it being duplicated code) 
+  // as it is a necessary part of the implementation for signalling. 
   public func getConnectionRequest(principal : Text) : async ?ConnectionDetails { 
     let connectionRequest = await Signalling.getConnectionRequest(principal); 
   };
   
+
+
   // //this can be changed to shared(msg)
   // public func removeFromCurrent(principal : Text) : async () { 
   //   await Signalling.removeActiveUser(principal);
