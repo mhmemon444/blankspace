@@ -9,6 +9,7 @@ export interface _SERVICE {
   'addToCurrentUsers' : (arg_0: string) => Promise<undefined>,
   'getActiveUsers' : () => Promise<Array<string>>,
   'getConnectionRequest' : (arg_0: string) => Promise<[] | [ConnectionDetails]>,
+  'getDocName' : (arg_0: string) => Promise<string>,
   'getUsersDocs' : (arg_0: string) => Promise<Array<string>>,
   'removeFromCurrent' : (arg_0: string) => Promise<undefined>,
   'updateCurrentPeers' : (
@@ -17,5 +18,6 @@ export interface _SERVICE {
       arg_2: string,
       arg_3: string,
     ) => Promise<undefined>,
+  'updateDocName' : (arg_0: string, arg_1: string) => Promise<undefined>,
   'updateUsersDocs' : (arg_0: string, arg_1: string) => Promise<undefined>,
 }

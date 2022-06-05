@@ -9,8 +9,10 @@ service : {
   addToCurrentUsers: (text) -> ();
   getActiveUsers: () -> (vec text);
   getConnectionRequest: (text) -> (opt ConnectionDetails);
+  getDocName: (text) -> (text) query;
   getUsersDocs: (text) -> (vec text) query;
   removeFromCurrent: (text) -> ();
   updateCurrentPeers: (text, text, text, text) -> ();
+  updateDocName: (text, text) -> ();
   updateUsersDocs: (text, text) -> ();
 }

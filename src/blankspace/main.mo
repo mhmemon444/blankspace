@@ -83,7 +83,6 @@ actor {
     //TODO: if list already contains docID, do not add docID to list again
     docsList := List.push(docID, docsList);
     usersDocs.put(principal, docsList);
-    // Debug.print(debug_show(docsList));
   };
 
   public query func getUsersDocs(principal: Text) : async [Text] {
@@ -94,6 +93,22 @@ actor {
     return ( List.toArray<Text>(docsList) ); 
   };
 
+
+  //Hashmap of docIDs to docNames
+  var docNames = HashMap.HashMap<Text, Text>(1, Text.equal, Text.hash);
+  public func updateDocName(docID: Text, docName: Text) : async () {
+    Debug.print(debug_show(docName));
+    Debug.print(debug_show(docID));
+    docNames.put(docID, docName);
+  };
+
+  public query func getDocName(docID: Text) : async Text {
+    var docname : Text = switch(docNames.get(docID)){
+      case null "Untitled"; 
+      case (?result) result; 
+    };
+    return docname; 
+  }
 
 
 

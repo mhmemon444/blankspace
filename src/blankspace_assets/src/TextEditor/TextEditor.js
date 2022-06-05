@@ -19,13 +19,13 @@ const TOOLBAR_OPTIONS = [
   ["clean"],
 ]
 
-export default function TextEditor() {
+export default function TextEditor(props) {
   const [quill, setQuill] = useState()
   const [delta, setDelta] = useState(null);
   const [connected, setConnected] = useState([]); 
   const [offered, setOffered] = useState([]); 
   const [connectedPeers, setConnectedPeers] = useState([]);
-  const [docID, setDocID] = useState("");
+
 
   // Remove from current list on exit TODO
   window.addEventListener('beforeunload', async function (e) {
@@ -112,11 +112,16 @@ export default function TextEditor() {
 
   useEffect(() => {
     //check if new doc (empty doc ID) -> later expand to react router url params
-    if (docID == "") {
-      const uniqueID = uuid();
-      setDocID(uniqueID);
-      blankspace.updateUsersDocs(uniqueID, myPrincipal);
+    const addNewDoc = async () => {
+      if (props.docID == "") {
+        const uniqueID = uuid();
+        props.setDocID(uniqueID);
+        await blankspace.updateUsersDocs(myPrincipal, uniqueID);
+      }
     }
+
+    addNewDoc();
+    
 
     async function activeUserUpdate(){ 
       // get active users from motoko

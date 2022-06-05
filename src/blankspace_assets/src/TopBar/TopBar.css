@@ -1,0 +1,43 @@
+.topBar {
+    padding: 20px;
+    display: flex;
+}
+
+.shareBtnClass {
+    width: 100%;
+    text-align: right;
+}
+
+.shareBtn {
+    border: 1px solid transparent!important;
+    border-radius: 4px;
+    box-shadow: none;
+    box-sizing: border-box;
+    font-weight: 500;
+    font-size: 14px;
+    height: 36px;
+    letter-spacing: 0.25px;
+    line-height: 16px;
+    padding: 9px 24px 11px 24px;
+    background: #1a73e8;
+    color: #fff;
+    padding: 9px 16px 10px 12px;
+}
+
+.shareBtn:hover {
+    background: #4489e3;
+    cursor: pointer;
+}
+
+.docNameInput {
+    border: 1px solid transparent;
+    border-radius: 2px!important;
+    font-size: 18px;
+    background-color: #f3f3f3;
+    font-variant-ligatures: no-contextual;
+    height: 20px;
+    line-height: 22px;
+    margin: 0;
+    min-width: 1px;
+    padding: 2px 7px;
+}
