@@ -11,7 +11,6 @@ export interface _SERVICE {
   'getConnectionRequest' : (arg_0: string) => Promise<[] | [ConnectionDetails]>,
   'getDocName' : (arg_0: string) => Promise<string>,
   'getUsersDocs' : (arg_0: string) => Promise<Array<string>>,
-  'removeFromCurrent' : (arg_0: string) => Promise<undefined>,
   'updateCurrentPeers' : (
       arg_0: string,
       arg_1: string,
