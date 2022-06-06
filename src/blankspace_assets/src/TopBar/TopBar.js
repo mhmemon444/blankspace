@@ -19,8 +19,11 @@ export default function TopBar(props) {
     return (
         <div className="topBar">
             <div>
+                <div style={{display: 'flex'}}>
+                <img onClick={props.showSidebar} src="sidebar-icon-17.jpg" style={{height: "20px", marginRight: "50px", cursor: "pointer"}}/>
                 <input className="docNameInput" type="text" onChange={(e) => handleDocNameChange(e)} value={props.docName} onBlur={saveDocName} />
-                <div style={{fontSize: '10px', marginLeft: '2px'}}>{props.docID}</div>
+                </div>
+                <div style={{fontSize: '10px', marginLeft: '70px'}}>{props.docID}</div>
             </div>
             <div className="shareBtnClass">
                 <button className="shareBtn" onClick={shareBtnClickHandler}>Share</button>

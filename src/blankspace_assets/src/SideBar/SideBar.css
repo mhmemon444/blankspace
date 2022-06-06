@@ -1,0 +1,9 @@
+.navBar {
+    width: 200px;
+    height: 100vh;
+    background-color: #f3f3f3;
+    padding-top: 50px;
+    padding-left: 10px;
+    overflow:scroll;
+    z-index: 10;
+}
