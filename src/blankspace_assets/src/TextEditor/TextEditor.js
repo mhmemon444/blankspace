@@ -5,6 +5,7 @@ import 'react-quill/dist/quill.snow.css';
 import "./TextEditor.css";
 import { blankspace } from "../../../declarations/blankspace/index";
 import Peer from "simple-peer";
+import { uuid } from 'uuidv4';
 
 const TOOLBAR_OPTIONS = [
   [{ header: [1, 2, 3, 4, 5, 6, false] }],
@@ -18,7 +19,7 @@ const TOOLBAR_OPTIONS = [
   ["clean"],
 ]
 
-export default function TextEditor() {
+export default function TextEditor(props) {
   const [quill, setQuill] = useState()
   const [delta, setDelta] = useState(null);
   const [connected, setConnected] = useState([]); 
@@ -31,6 +32,8 @@ export default function TextEditor() {
   // window.addEventListener('beforeunload', async function (e) {
   //   await blankspace.removeFromCurrent(myPrincipal);
   // });
+
+  //
 
   // Pulling in user id from URL as a hash '#NAME'
   const myPrincipal = location.hash
@@ -109,6 +112,18 @@ export default function TextEditor() {
   var myPeers = [] 
 
   useEffect(() => {
+    //check if new doc (empty doc ID) -> later expand to react router url params
+    const addNewDoc = async () => {
+      if (props.docID == "") {
+        const uniqueID = uuid();
+        props.setDocID(uniqueID);
+        await blankspace.updateUsersDocs(myPrincipal, uniqueID);
+      }
+    }
+
+    addNewDoc();
+    
+
     async function activeUserUpdate(){ 
       // get active users from motoko
       var peersActive = await blankspace.getActiveUsers();

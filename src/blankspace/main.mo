@@ -71,4 +71,50 @@ actor Blankspace {
 
 
 
+  //MULTI DOCS
+
+  //Hashmap of users (note: currently text later expand to Principal type) to docs (array of docIDs)
+  //---------Keeping track of which documents belong to which users
+  var usersDocs = HashMap.HashMap<Text, List.List<Text>>(1, Text.equal, Text.hash);
+  public func updateUsersDocs(principal: Text, docID: Text) : async () {
+    Debug.print(debug_show(principal));
+    Debug.print(debug_show(docID));
+    var docsList : List.List<Text> = switch(usersDocs.get(principal)){
+      case null List.nil<Text>(); 
+      case (?result) result; 
+    };
+    //TODO: if list already contains docID, do not add docID to list again
+    docsList := List.push(docID, docsList);
+    usersDocs.put(principal, docsList);
+  };
+
+  public query func getUsersDocs(principal: Text) : async [Text] {
+    var docsList : List.List<Text> = switch(usersDocs.get(principal)){
+      case null List.nil<Text>(); 
+      case (?result) result; 
+    };
+    return ( List.toArray<Text>(docsList) ); 
+  };
+
+
+  //Hashmap of docIDs to docNames
+  var docNames = HashMap.HashMap<Text, Text>(1, Text.equal, Text.hash);
+  public func updateDocName(docID: Text, docName: Text) : async () {
+    Debug.print(debug_show(docName));
+    Debug.print(debug_show(docID));
+    docNames.put(docID, docName);
+  };
+
+  public query func getDocName(docID: Text) : async Text {
+    var docname : Text = switch(docNames.get(docID)){
+      case null "Untitled"; 
+      case (?result) result; 
+    };
+    return docname; 
+    //comment
+  }
+
+
+
+
 }
