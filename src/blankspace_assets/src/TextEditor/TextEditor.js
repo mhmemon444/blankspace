@@ -28,15 +28,18 @@ export default function TextEditor(props) {
 
   // NOTE: this was my attempt at removing users from an active user, here when a user xs out they get disconnected 
   // although there should be another approach? maybe a button a user clicks on the front end to deactivate connected mode? 
-  // // Remove from current list on exit TODO
-  // window.addEventListener('beforeunload', async function (e) {
-  //   await blankspace.removeFromCurrent(myPrincipal);
-  // });
+  // Remove from current list on exit TODO
+  window.addEventListener('beforeunload', async function (e) {
+    for(let i = 0; i < connectedPeers.length; i++){ 
+      connectedPeers[i].destroy(); 
+    }
+    await blankspace.removeFromActive(uniqueID, myPrincipal); 
+  });
 
-  //
 
   // Pulling in user id from URL as a hash '#NAME'
   const myPrincipal = location.hash
+  let uniqueID = "7410bc5d-b83a-4b65-8627-b874472c7731";
 
   // Sets up the wrapper (a div around the quill) for quill front end element
   const wrapperRef = useCallback((wrapper) => {
@@ -87,14 +90,12 @@ export default function TextEditor(props) {
 
       this.peer.on("error", (err) => {
         console.log("Error for Peer", this.recipient)
-        this.peer.destroy() 
         var index = offered.indexOf(this.recipient)
         setOffered(offered.splice(index, 1))
         index = connected.indexOf(this.recipient)
         setConnected(connected.splice(index, 1))
-        // index = connectedPeers.indexOf(recipient)
-        // setConnectedPeers(connectedPeers.splice(index, 1))
-        setConnectedPeers(prevConnected => prevConnected.filter(function(e){ return e.recipient !== recipient}))
+        let rec = this.recipient
+        setConnectedPeers(prevConnected => prevConnected.filter(function(e){ return e.recipient !== rec}))
       });
     }
 
@@ -113,9 +114,10 @@ export default function TextEditor(props) {
 
   useEffect(() => {
     //check if new doc (empty doc ID) -> later expand to react router url params
+    // const uniqueID = uuid();
+    // const uniqueID = "7410bc5d-b83a-4b65-8627-b874472c7731";
     const addNewDoc = async () => {
       if (props.docID == "") {
-        const uniqueID = uuid();
         props.setDocID(uniqueID);
         await blankspace.updateUsersDocs(myPrincipal, uniqueID);
       }
@@ -126,11 +128,15 @@ export default function TextEditor(props) {
 
     async function activeUserUpdate(){ 
       // get active users from motoko
-      var peersActive = await blankspace.getActiveUsers();
+      console.log("Props.docID", uniqueID)
+      var peersActive = await blankspace.getActiveUsers(uniqueID);
       var foundMe = false;  
 
+      if (!peersActive.includes(myPrincipal)){ 
+        await blankspace.addToCurrentUsers(uniqueID, myPrincipal); 
+      }
       //add myself to the current users (if im not already added)
-      await blankspace.addToCurrentUsers(myPrincipal); 
+      
 
 
       console.log("ACTIVE PEERS", peersActive)
@@ -145,8 +151,7 @@ export default function TextEditor(props) {
           }
 
           console.log("OFFERED", offered)     
-          console.log("CONNECTED", connected)              
-          console.log("CONNECTED PEERS", connectedPeers)
+          console.log("CONNECTED", connected)
           console.log("MY PEERS", myPeers)
     
           if(myPrincipal != peersActive[i] && foundMe == true){

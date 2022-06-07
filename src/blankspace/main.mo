@@ -19,16 +19,7 @@ actor Blankspace {
   var docsPrincipalHashmap = HashMap.HashMap<Text, List.List<Principal>>(1, Text.equal, Text.hash);  
   var docsContent = HashMap.HashMap<Text, Text>(1, Text.equal, Text.hash);
 
-
-
-  // NOTE: functions for handling multiple docs should go here
-
-
-
-
-
-
-
+  var activeDocsPrincipalHashmap = HashMap.HashMap<Text, List.List<Text>>(1, Text.equal, Text.hash);
 
   /** 
 
@@ -44,14 +35,24 @@ actor Blankspace {
 
   // NOTE: this should be handled here without calling to signalling, signalling should only know about specific users and their connections 
   // not the logic behind WHO is on a specific doc and is active for a particular user 
-  public func getActiveUsers() : async [Text]{ 
-    let activeUsers = await Signalling.getActiveUsers(); 
-    return activeUsers; 
+  public func getActiveUsers(documentID : Text) : async [Text]{ 
+    var activeUsers : List.List<Text> = switch(activeDocsPrincipalHashmap.get(documentID)){
+        case null List.nil<Text>(); 
+        case (?result) result;
+    }; 
+    Debug.print(debug_show(documentID));
+    return ( List.toArray<Text>(activeUsers) ); 
   };
 
   //this can be changed to shared(msg)
-  public func addToCurrentUsers(principal : Text) : async() { 
-    await Signalling.addActiveUser(principal); 
+  public func addToCurrentUsers(documentID : Text, principal : Text) : async() { 
+    var currentDoc : List.List<Text> = switch(activeDocsPrincipalHashmap.get(documentID)){
+        case null List.nil<Text>(); 
+        case (?result) result;
+    }; 
+
+    currentDoc := List.push(principal, currentDoc);
+    activeDocsPrincipalHashmap.put(documentID, currentDoc); 
   };
 
   // NOTE: this can be changed to shared(msg) so we no longer require princicpal 
@@ -62,9 +63,22 @@ actor Blankspace {
   };
   
 
+  public func removeFromActive(documentID : Text, principal : Text ) : async () {
+    Debug.print(debug_show(principal));
+    Debug.print(debug_show("DELETING FROM ACTIVE"));
+
+    var currentDoc : List.List<Text> = switch(activeDocsPrincipalHashmap.get(documentID)){
+        case null List.nil<Text>(); 
+        case (?result) result;
+    }; 
+    currentDoc := List.filter(currentDoc, func (user : Text) : Bool {
+        user != principal
+    });
+    activeDocsPrincipalHashmap.put(documentID, currentDoc); 
+  };
 
   // //this can be changed to shared(msg)
-  // public func removeFromCurrent(principal : Text) : async () { 
+  // public func removeFromCurrent(documentID : Text, principal : Text) : async () { 
   //   await Signalling.removeActiveUser(principal);
   // };
 

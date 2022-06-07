@@ -10,15 +10,6 @@ module {
         public type ConnectionDetails = Types.ConnectionDetails;  
         let connectionsMap = HashMap.HashMap<Text, List.List<ConnectionDetails>>(1, Text.equal, Text.hash);
 
-        public func addActiveUser(principal : Text){ 
-            // add a new key (principal name) with an empty list 
-            connectionsMap.put(principal, List.nil());
-        };
-
-        public func removeActiveUser(principal : Text){ 
-            let removed = connectionsMap.remove(principal); 
-        };
-
         public func addConnectionRequest(initiator : Text, recipient : Text, typeof : Text, sdp : Text){
             // find the recipient in the hashmap
             // add connectionDetails to the list.
@@ -41,18 +32,6 @@ module {
             connectionsMap.put(principal, poppedList); 
             return connectionRequest;
         };
-
-        // NOTE: this should be handled in BLANKSPACE as it has more to do with implementation of the active users on blankspace
-        public func getActiveUsers(): [Text]{ 
-            // get the keys from the hashmap 
-            var keyList : List.List<Text> = List.nil(); 
-            for (x in connectionsMap.keys()){
-                keyList := List.push(x, keyList);
-            };
-            return ( List.toArray<Text>(keyList) ); 
-        };
-
-
 
     }
 }

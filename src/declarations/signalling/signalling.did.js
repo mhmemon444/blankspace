@@ -6,13 +6,11 @@ export const idlFactory = ({ IDL }) => {
     'typeof' : IDL.Text,
   });
   return IDL.Service({
-    'addActiveUser' : IDL.Func([IDL.Text], [], []),
     'addConnectionRequest' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text, IDL.Text],
         [],
         [],
       ),
-    'getActiveUsers' : IDL.Func([], [IDL.Vec(IDL.Text)], []),
     'getConnectionRequest' : IDL.Func(
         [IDL.Text],
         [IDL.Opt(ConnectionDetails)],
