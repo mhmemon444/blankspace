@@ -10,6 +10,7 @@ export interface _SERVICE {
   'getActiveUsers' : (arg_0: string) => Promise<Array<string>>,
   'getConnectionRequest' : (arg_0: string) => Promise<[] | [ConnectionDetails]>,
   'getDocName' : (arg_0: string) => Promise<string>,
+  'getFirst' : (arg_0: string) => Promise<[] | [string]>,
   'getUsersDocs' : (arg_0: string) => Promise<Array<string>>,
   'removeFromActive' : (arg_0: string, arg_1: string) => Promise<undefined>,
   'updateCurrentPeers' : (

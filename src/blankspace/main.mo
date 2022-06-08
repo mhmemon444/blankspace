@@ -44,6 +44,14 @@ actor Blankspace {
     return ( List.toArray<Text>(activeUsers) ); 
   };
 
+  public func getFirst(documentID : Text) : async ?Text { 
+    var activeUsers : List.List<Text> = switch(activeDocsPrincipalHashmap.get(documentID)){
+        case null List.nil<Text>(); 
+        case (?result) result;
+    }; 
+    return List.last(activeUsers);
+  };
+
   //this can be changed to shared(msg)
   public func addToCurrentUsers(documentID : Text, principal : Text) : async() { 
     var currentDoc : List.List<Text> = switch(activeDocsPrincipalHashmap.get(documentID)){

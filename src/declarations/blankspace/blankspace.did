@@ -10,6 +10,7 @@ service : {
   getActiveUsers: (text) -> (vec text);
   getConnectionRequest: (text) -> (opt ConnectionDetails);
   getDocName: (text) -> (text) query;
+  getFirst: (text) -> (opt text);
   getUsersDocs: (text) -> (vec text) query;
   removeFromActive: (text, text) -> ();
   updateCurrentPeers: (text, text, text, text) -> ();

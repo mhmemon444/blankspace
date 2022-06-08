@@ -267,6 +267,20 @@ export default function TextEditor(props) {
     }
   }
 
+  useEffect(() => { 
+    const sendDoc = async () => { 
+      var head = await blankspace.getFirst(uniqueID);  
+      console.log('HEAD', head); 
+      var delta = quill.getContents(); 
+      console.log('DOC DELTA', delta)
+      if(head == myPrincipal){ 
+        for (let i = 0; i < connectedPeers.length; i++){ 
+          connectedPeers[i].getPeer().send(JSON.stringify(delta))
+        }
+      }
+    }
+    sendDoc();
+  }, [connectedPeers]); 
 
   // when text is updated, send to all connected peers
   useEffect(() => {
@@ -292,7 +306,21 @@ export default function TextEditor(props) {
 
   useEffect(() => {
     if (quill == null || delta == null) return;
-    quill.updateContents(JSON.parse(delta));
+    var json = JSON.parse(delta)
+    var val = json.ops[0]
+    console.log('JSON', json)
+    console.log('json insert', json.ops[0])
+    if(json.ops[0].hasOwnProperty('insert')){
+      console.log('IN THE INSERT IF ')
+      if(val.insert.length > 1){
+        quill.setContents(JSON.parse(delta))
+      } else { 
+        quill.updateContents(JSON.parse(delta));
+      }
+    } else { 
+      quill.updateContents(JSON.parse(delta));
+    }
+
   }, [delta]);
 
   return (
