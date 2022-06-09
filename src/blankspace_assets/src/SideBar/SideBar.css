@@ -2,8 +2,23 @@
     width: 200px;
     height: 100vh;
     background-color: #f3f3f3;
-    padding-top: 50px;
+    padding-top: 30px;
     padding-left: 10px;
     overflow:scroll;
     z-index: 10;
+}
+
+.sideBarPos {
+    position: fixed;
+    top: 120px;
+    z-index: 10;
+}
+
+.doc-menu-item {
+    font-size: 12px;
+}
+
+.binimg {
+    height: 10px;
+    cursor: pointer;
 }

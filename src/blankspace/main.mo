@@ -105,7 +105,16 @@ actor Blankspace {
       case null List.nil<Text>(); 
       case (?result) result; 
     };
+
     //TODO: if list already contains docID, do not add docID to list again
+    var arr = List.toArray<Text>(docsList);
+    for (x in arr.vals()) {
+      if (x == docID) {
+        return;
+      };
+    };
+
+
     docsList := List.push(docID, docsList);
     usersDocs.put(principal, docsList);
   };
@@ -134,6 +143,24 @@ actor Blankspace {
     };
     return docname; 
     //comment
+  };
+
+
+  //Hashmap of docIDs to doc contents
+  var docContents = HashMap.HashMap<Text, Text>(1, Text.equal, Text.hash);
+  public func updateDocContents(docID: Text, contents: Text) : async () {
+    Debug.print(debug_show(docID));
+    Debug.print(debug_show(contents));
+    docContents.put(docID, contents);
+  };
+
+  public query func getDocContents(docID: Text) : async Text {
+    var contents : Text = switch(docContents.get(docID)){
+      case null "null"; 
+      case (?result) result; 
+    };
+    return contents; 
+    //commentssssssssssss
   }
 
 
