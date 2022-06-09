@@ -13,6 +13,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Opt(ConnectionDetails)],
         [],
       ),
+    'getDocContents' : IDL.Func([IDL.Text], [IDL.Text], ['query']),
     'getDocName' : IDL.Func([IDL.Text], [IDL.Text], ['query']),
     'getUsersDocs' : IDL.Func([IDL.Text], [IDL.Vec(IDL.Text)], ['query']),
     'updateCurrentPeers' : IDL.Func(
@@ -20,6 +21,7 @@ export const idlFactory = ({ IDL }) => {
         [],
         [],
       ),
+    'updateDocContents' : IDL.Func([IDL.Text, IDL.Text], [], []),
     'updateDocName' : IDL.Func([IDL.Text, IDL.Text], [], []),
     'updateUsersDocs' : IDL.Func([IDL.Text, IDL.Text], [], []),
   });

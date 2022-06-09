@@ -6,6 +6,7 @@ import "./TextEditor.css";
 import { blankspace } from "../../../declarations/blankspace/index";
 import Peer from "simple-peer";
 import { uuid } from 'uuidv4';
+import { useParams } from 'react-router-dom';
 
 const TOOLBAR_OPTIONS = [
   [{ header: [1, 2, 3, 4, 5, 6, false] }],
@@ -22,9 +23,11 @@ const TOOLBAR_OPTIONS = [
 export default function TextEditor(props) {
   const [quill, setQuill] = useState()
   const [delta, setDelta] = useState(null);
-  const [connected, setConnected] = useState([]); 
-  const [offered, setOffered] = useState([]); 
+  const [connected, setConnected] = useState([]);
+  const [offered, setOffered] = useState([]);
   const [connectedPeers, setConnectedPeers] = useState([]);
+  const [contents, setContents] = useState("");
+  const [quillLoaded, setQuillLoaded] = useState(false);
 
   // NOTE: this was my attempt at removing users from an active user, here when a user xs out they get disconnected 
   // although there should be another approach? maybe a button a user clicks on the front end to deactivate connected mode? 
@@ -33,10 +36,12 @@ export default function TextEditor(props) {
   //   await blankspace.removeFromCurrent(myPrincipal);
   // });
 
-  //
+  //Get URL params e.g. docID
+  const { id: documentId } = useParams();
 
   // Pulling in user id from URL as a hash '#NAME'
-  const myPrincipal = location.hash
+  // const myPrincipal = location.hash
+  const myPrincipal = "#hassan";
 
   // Sets up the wrapper (a div around the quill) for quill front end element
   const wrapperRef = useCallback((wrapper) => {
@@ -47,30 +52,30 @@ export default function TextEditor(props) {
     wrapper.append(editor)
     const q = new Quill(editor, { theme: "snow", modules: { toolbar: TOOLBAR_OPTIONS } })
     setQuill(q);
-    
+
   }, [])
 
   // class to wrap a simple peer object, maintains 
   class MyPeer {
     constructor(recipient, myPrincipal) {
       this.recipient = recipient;
-      if (this.recipient.length > 0 ){ 
+      if (this.recipient.length > 0) {
         setOffered(offered.push(this.recipient))
       }
       this.myPrincipal = myPrincipal;
-  
+
       this.peer = new Peer({
         initiator: this.recipient.length > 0,
         trickle: false,
       });
-  
+
       this.peer.on("signal", async (data) => {
-        if (this.recipient.length > 0){
+        if (this.recipient.length > 0) {
           console.log('SENDING to', this.recipient, data)
           await blankspace.updateCurrentPeers(this.myPrincipal, this.recipient, data.type, data.sdp);
         }
       });
-  
+
       this.peer.on("connect", () => {
         // see if there is a way to remove connected list (only maintain connectedPeers and myPeers)
         console.log("CONNECTED TO", this.recipient)
@@ -79,7 +84,7 @@ export default function TextEditor(props) {
         const index = offered.indexOf(recipient)
         setOffered(offered.splice(index, 1))
       });
-  
+
       this.peer.on('data', delta => {
         console.log('delta: ' + delta)
         setDelta(delta)
@@ -87,75 +92,91 @@ export default function TextEditor(props) {
 
       this.peer.on("error", (err) => {
         console.log("Error for Peer", this.recipient)
-        this.peer.destroy() 
+        this.peer.destroy()
         var index = offered.indexOf(this.recipient)
         setOffered(offered.splice(index, 1))
         index = connected.indexOf(this.recipient)
         setConnected(connected.splice(index, 1))
         // index = connectedPeers.indexOf(recipient)
         // setConnectedPeers(connectedPeers.splice(index, 1))
-        setConnectedPeers(prevConnected => prevConnected.filter(function(e){ return e.recipient !== recipient}))
+        setConnectedPeers(prevConnected => prevConnected.filter(function (e) { return e.recipient !== recipient }))
       });
     }
 
-    getPeer(){ 
+    getPeer() {
       return this.peer;
     }
-  
+
     setRecipient(recipient) {
       this.recipient = recipient;
     }
   }
 
   //TODO: Loop through connectedpeers to check if they're still connected -- double check that when a peer breaks( for whatever reason ) it is getting correctly removed from connectedPeers
-  
-  var myPeers = [] 
+
+  var myPeers = []
+
+
 
   useEffect(() => {
     //check if new doc (empty doc ID) -> later expand to react router url params
-    const addNewDoc = async () => {
-      if (props.docID == "") {
-        const uniqueID = uuid();
-        props.setDocID(uniqueID);
-        await blankspace.updateUsersDocs(myPrincipal, uniqueID);
-      }
-    }
+    // const addNewDoc = async () => {
+    //   if (props.docID == "") {
+    //     const uniqueID = uuid();
+    //     props.setDocID(uniqueID);
+    //     await blankspace.updateUsersDocs(myPrincipal, uniqueID);
+    //   }
+    // }
+    // const retrieveDocContent = async () => {
+    //   // const docContent = await blankspace.getDocContents(documentId);
+    //   // console.log("docContent: ", docContent);
+    //   // if (docContent == []) { //new document
+    //   //   await blankspace.updateUsersDocs(myPrincipal, documentId);
+    //   // } else {
+    //   //   quill.updateContents(docContent[0])
+    //   // }
+    // }
 
-    addNewDoc();
-    
+    // retrieveDocContent();
 
-    async function activeUserUpdate(){ 
+    // quill.updateContents(docContent[0])
+
+
+    // addNewDoc();
+
+
+    async function activeUserUpdate() {
       // get active users from motoko
       var peersActive = await blankspace.getActiveUsers();
-      var foundMe = false;  
+      var foundMe = false;
 
       //add myself to the current users (if im not already added)
-      await blankspace.addToCurrentUsers(myPrincipal); 
+      await blankspace.addToCurrentUsers(myPrincipal);
 
 
       console.log("ACTIVE PEERS", peersActive)
 
       // if there are peers which have also connected 
-      if (peersActive.length != 0){
-        for(let i = 0; i < peersActive.length; i++){
+      if (peersActive.length != 0) {
+        for (let i = 0; i < peersActive.length; i++) {
 
           //only create offers for users which come after me in the list 
-          if(myPrincipal == peersActive[i]){
-            foundMe = true; 
+          if (myPrincipal == peersActive[i]) {
+            foundMe = true;
           }
 
-          console.log("OFFERED", offered)     
-          console.log("CONNECTED", connected)              
+          console.log("OFFERED", offered)
+          console.log("CONNECTED", connected)
           console.log("CONNECTED PEERS", connectedPeers)
           console.log("MY PEERS", myPeers)
-    
-          if(myPrincipal != peersActive[i] && foundMe == true){
-            if(connected.indexOf(peersActive[i]) === -1 && offered.indexOf(peersActive[i]) === -1  ){
+
+          if (myPrincipal != peersActive[i] && foundMe == true) {
+            if (connected.indexOf(peersActive[i]) === -1 && offered.indexOf(peersActive[i]) === -1) {
               // create an offer for this recipient 
               createOffer(peersActive[i])
             }
           }
-        } 
+        }
       }
     }
     const intervalOne = setInterval(activeUserUpdate, 5000);
@@ -179,84 +200,84 @@ export default function TextEditor(props) {
         }
       }
     }
-    const intervalTwo = setInterval( connectionRequests, 2000);
+    const intervalTwo = setInterval(connectionRequests, 2000);
     return () => clearInterval(intervalTwo);
   }, [])
 
-  
+
 
   //if there is no response from an offer, destroy the peer, take back the offer and resend
-  function clearOfferNA(recipient){ 
+  function clearOfferNA(recipient) {
     // if recipient hasnt connected 
-    if(connected.indexOf(recipient) === -1){
+    if (connected.indexOf(recipient) === -1) {
       //remove from offered and from myPeers to create a new offer 
       const index = offered.indexOf(recipient)
       setOffered(offered.splice(index, 1))
 
       //kill the peer first 
-      let recipientPeer = myPeers.filter(function(e){ return e.recipient === recipient})
+      let recipientPeer = myPeers.filter(function (e) { return e.recipient === recipient })
       recipientPeer[0].getPeer().destroy()
-      myPeers = myPeers.filter(function(e){ return e.recipient !== recipient})
+      myPeers = myPeers.filter(function (e) { return e.recipient !== recipient })
     }
   }
 
   // create an offer for a particular recipient 
-  function createOffer(recipient){ 
+  function createOffer(recipient) {
 
     //only create offer is a peer/offer does not already exist for that recipient 
-    var createdPeer = false 
-    for (let i =0; i < myPeers.length; i++){
-      if (recipient === myPeers[i].recipient){
+    var createdPeer = false
+    for (let i = 0; i < myPeers.length; i++) {
+      if (recipient === myPeers[i].recipient) {
         createdPeer = true
       }
     }
-    if(offered.indexOf(recipient) === -1 && createdPeer === false){
+    if (offered.indexOf(recipient) === -1 && createdPeer === false) {
       console.log('RECIPIENT BEING OFFERED', recipient)
       const p = new MyPeer(recipient, myPrincipal)
       myPeers.push(p)
       // create a 30 second wait to delete offer if no answer is recieved 
-      setTimeout(() => { 
+      setTimeout(() => {
         clearOfferNA(recipient)
       }, 30000)
     }
   }
 
   // when an offer request is recieved from another peer, handle using this function, ensuring to remove a previous peer created from them
-  function handleOffer(request){ 
+  function handleOffer(request) {
     var recipient = request[0].initiator
     destroyPeer(recipient)
     // create a peer for this particular offer, add to myPeers list, and signal back 
-    var jsonData = {"type":request[0].typeof, "sdp":request[0].sdp}
-    var p = new MyPeer("", myPrincipal); 
+    var jsonData = { "type": request[0].typeof, "sdp": request[0].sdp }
+    var p = new MyPeer("", myPrincipal);
     p.setRecipient(recipient)
     myPeers.push(p)
     p.peer.signal(jsonData)
-  } 
+  }
 
-  function destroyPeer(recipient){ 
-    var createdPeer = false 
-    for (let i =0; i < myPeers.length; i++){
-      if (recipient === myPeers[i].recipient){
+  function destroyPeer(recipient) {
+    var createdPeer = false
+    for (let i = 0; i < myPeers.length; i++) {
+      if (recipient === myPeers[i].recipient) {
         createdPeer = true
       }
     }
-    if(createdPeer){
+    if (createdPeer) {
       console.log('destroyed')
-      var killPeer = myPeers.filter(function(e){ return e.recipient === recipient})
+      var killPeer = myPeers.filter(function (e) { return e.recipient === recipient })
       killPeer[0].getPeer().destroy()
-      myPeers = myPeers.filter(function(e){ return e.recipient !== recipient})
+      myPeers = myPeers.filter(function (e) { return e.recipient !== recipient })
     }
   }
 
   // when an answer request is received from another peer, handle using this function
-  function handleAnswer(request){ 
+  function handleAnswer(request) {
     // if its an answer, signal back that you have received the answer and connect (connection happens through the signal)
-    var recipient = request[0].initiator; 
+    var recipient = request[0].initiator;
     console.log('ANSWER FROM RECIPIENT', recipient)
-    var jsonData = {"type":request[0].typeof, "sdp":request[0].sdp}
+    var jsonData = { "type": request[0].typeof, "sdp": request[0].sdp }
     console.log('MYPEERS', myPeers)
-    for(let i = 0; i < myPeers.length; i++){
-      if(recipient == myPeers[i].recipient){
+    for (let i = 0; i < myPeers.length; i++) {
+      if (recipient == myPeers[i].recipient) {
         myPeers[i].getPeer().signal(jsonData)
       }
     }
@@ -266,13 +287,14 @@ export default function TextEditor(props) {
   // when text is updated, send to all connected peers
   useEffect(() => {
     if (quill == null) return;
+    if (quillLoaded == false) { setQuillLoaded(true) }
     const handler = (delta, oldDelta, source) => {
       if (source !== 'user') {
         return;
       }
       // //send delta to peer
       console.log("Connected PEERS", connectedPeers)
-      for(let i = 0; i < connectedPeers.length; i++){
+      for (let i = 0; i < connectedPeers.length; i++) {
         connectedPeers[i].getPeer().send(JSON.stringify(delta))
       }
       console.log("deltaaaa ", JSON.stringify(delta));
@@ -289,6 +311,23 @@ export default function TextEditor(props) {
     if (quill == null || delta == null) return;
     quill.updateContents(JSON.parse(delta));
   }, [delta]);
+
+  useEffect(() => {
+    if (quillLoaded) {
+      const retrieveDocContent = async () => {
+        const docContent = await blankspace.getDocContents(documentId);
+        // console.log("docContent: ", docContent);
+        if (docContent == "null") { //new document
+          console.log("new doc");
+          await blankspace.updateUsersDocs(myPrincipal, documentId);
+        } else {
+          quill.setText(docContent)
+        }
+        // quill.setText("Hello");
+      }
+      retrieveDocContent();
+    }
+  }, [quillLoaded])
 
   return (
     <div className="container" ref={wrapperRef}></div>
