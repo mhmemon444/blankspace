@@ -36,7 +36,7 @@ export default function TextEditor(props) {
     for(let i = 0; i < connectedPeers.length; i++){ 
       connectedPeers[i].destroy(); 
     }
-    await blankspace.removeFromActive(uniqueID, myPrincipal); 
+    await blankspace.removeFromActive(documentId, myPrincipal); 
   });
 
   //Get URL params e.g. docID
@@ -44,7 +44,7 @@ export default function TextEditor(props) {
 
   const startuptext = "Welcome to blankspace... this is our welcome message, connecting you to any available peers...";
   // Pulling in user id from URL as a hash '#NAME'
-  const myPrincipal = location.hash
+  const myPrincipal = (Math.random() + 1).toString(36).substring(7);
 
   // Sets up the wrapper (a div around the quill) for quill front end element
   const wrapperRef = useCallback((wrapper) => {
@@ -290,7 +290,7 @@ export default function TextEditor(props) {
 
   useEffect(() => { 
     const sendDoc = async () => { 
-      var head = await blankspace.getFirst(uniqueID);  
+      var head = await blankspace.getFirst(documentId);  
       console.log('HEAD', head); 
       var delta = quill.getContents(); 
       console.log('DOC DELTA', delta)
@@ -300,8 +300,10 @@ export default function TextEditor(props) {
         }
       }
     }
-    sendDoc();
-  }, [connectedPeers]); 
+    if (quillLoaded) {
+      sendDoc();
+    }
+  }, [connectedPeers, quillLoaded]); 
 
   // when text is updated, send to all connected peers
   useEffect(() => {
