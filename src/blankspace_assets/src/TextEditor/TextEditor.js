@@ -19,6 +19,7 @@ const TOOLBAR_OPTIONS = [
   ["image", "blockquote", "code-block"],
   ["clean"],
 ]
+const myPrincipal = (Math.random() + 1).toString(36).substring(7);
 
 export default function TextEditor(props) {
   const [quill, setQuill] = useState()
@@ -42,9 +43,8 @@ export default function TextEditor(props) {
   //Get URL params e.g. docID
   const { id: documentId } = useParams();
 
-  const startuptext = "Welcome to blankspace... this is our welcome message, connecting you to any available peers...";
+  const startuptext = "Welcome to blankspace...";
   // Pulling in user id from URL as a hash '#NAME'
-  const myPrincipal = (Math.random() + 1).toString(36).substring(7);
 
   // Sets up the wrapper (a div around the quill) for quill front end element
   const wrapperRef = useCallback((wrapper) => {
@@ -292,9 +292,10 @@ export default function TextEditor(props) {
     const sendDoc = async () => { 
       var head = await blankspace.getFirst(documentId);  
       console.log('HEAD', head); 
+      console.log('MY PRINCIPAL', myPrincipal)
       var delta = quill.getContents(); 
-      console.log('DOC DELTA', delta)
-      if(head == myPrincipal){ 
+      if(head[0] === myPrincipal){ 
+        console.log('SENDING DELTA TO CONNECTED PEERS', delta)
         for (let i = 0; i < connectedPeers.length; i++){ 
           connectedPeers[i].getPeer().send(JSON.stringify(delta))
         }
@@ -335,8 +336,8 @@ export default function TextEditor(props) {
     console.log('JSON', json)
     console.log('json insert', json.ops[0])
     if(json.ops[0].hasOwnProperty('insert')){
-      console.log('IN THE INSERT IF ')
       if(val.insert.length > 1){
+        console.log('RECEIVING DELTA and UPDATING CONTENT', delta)
         quill.setContents(JSON.parse(delta))
       } else { 
         quill.updateContents(JSON.parse(delta));
