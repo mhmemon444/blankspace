@@ -36,7 +36,7 @@ export default function TextEditor(props) {
     await blankspace.removeFromActive(uniqueID, myPrincipal); 
   });
 
-
+  const startuptext = "Welcome to blankspace... this is our welcome message, connecting you to any available peers...";
   // Pulling in user id from URL as a hash '#NAME'
   const myPrincipal = location.hash
   let uniqueID = "7410bc5d-b83a-4b65-8627-b874472c7731";
@@ -49,6 +49,7 @@ export default function TextEditor(props) {
     const editor = document.createElement('div');
     wrapper.append(editor)
     const q = new Quill(editor, { theme: "snow", modules: { toolbar: TOOLBAR_OPTIONS } })
+    q.setContents({"ops": [{"insert": startuptext, "attributes": {"bold": true}}]})
     setQuill(q);
     
   }, [])
