@@ -127,6 +127,18 @@ actor Blankspace {
     return ( List.toArray<Text>(docsList) ); 
   };
 
+  public func removeUserDoc(principal: Text, docID: Text) : async () {
+    var docsList : List.List<Text> = switch(usersDocs.get(principal)){
+      case null List.nil<Text>(); 
+      case (?result) result; 
+    };
+
+    docsList := List.filter(docsList, func(val: Text) : Bool { docID != val });
+    usersDocs.put(principal, docsList);
+  };
+
+
+
 
   //Hashmap of docIDs to docNames
   var docNames = HashMap.HashMap<Text, Text>(1, Text.equal, Text.hash);

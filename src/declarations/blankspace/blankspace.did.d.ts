@@ -14,6 +14,7 @@ export interface _SERVICE {
   'getFirst' : (arg_0: string) => Promise<[] | [string]>,
   'getUsersDocs' : (arg_0: string) => Promise<Array<string>>,
   'removeFromActive' : (arg_0: string, arg_1: string) => Promise<undefined>,
+  'removeUserDoc' : (arg_0: string, arg_1: string) => Promise<undefined>,
   'updateCurrentPeers' : (
       arg_0: string,
       arg_1: string,

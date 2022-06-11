@@ -14,8 +14,58 @@ const App = () => {
     const [docID, setDocID] = React.useState("");
     const [openModal, setOpenModal] = React.useState(false);
     const [sidebar, setSidebar] = React.useState(false);
-    const [userDocs, setUserDocs] = React.useState([]);
     const [switchDoc, setSwitchDoc] = React.useState(false);
+    const [userDocs, setUserDocs] = React.useState([]);
+
+    const myPrincipal = "#hassan";
+
+    React.useEffect(() => {
+        const getDocs = async () => {
+            console.log('myPrincipal: ', myPrincipal);
+            const docs = await blankspace.getUsersDocs(myPrincipal);
+            console.log('docs: ', docs);
+            const intermDocsArr = [];
+            for (var i = 0 ; i < docs.length ; i++) {
+                const dnam = await blankspace.getDocName(docs[i]);
+                console.log('dnam: ', dnam);
+                intermDocsArr.push({
+                    'doc_id': docs[i],
+                    'doc_name': dnam
+                })
+                console.log('intermDocsArr: ', intermDocsArr);
+            }
+            setUserDocs(intermDocsArr);
+        }
+        getDocs();
+        // const getDocsInterval = setInterval(getDocs, 5000);
+        // return () => clearInterval(getDocsInterval);
+        // getDocs();
+    }, []);
+
+    
+    React.useEffect(() => {
+        console.log("userDocs : ", userDocs);
+    }, [userDocs])
+
+    async function deleteDoc(id) {
+        setUserDocs(prevDocs => {
+            return prevDocs.filter((docItem, index) => {
+                return docItem['doc_id'] !== id;
+            })
+        })
+        await blankspace.removeUserDoc(myPrincipal, id);
+    }
+
+    async function addDoc(id) {
+        const newDoc = {
+            'doc_id': id,
+            'doc_name': 'Untitled'
+        }
+
+        setUserDocs(prevDocs => {
+            return prevDocs.push(newDoc)
+        })
+    }
 
     const showSidebar = () => setSidebar(!sidebar)
 
@@ -26,35 +76,6 @@ const App = () => {
     React.useEffect(() => {
         console.log("openModaL : ", openModal);
     }, [openModal])
-
-    React.useEffect(() => {
-        console.log("userDocs : ", userDocs);
-    }, [userDocs])
-
-    const myPrincipal = "#hassan";
-
-    React.useEffect(() => {
-        const getDocs = async () => {
-            console.log('myPrincipal: ', myPrincipal);
-            const docs = await blankspace.getUsersDocs(myPrincipal);
-            console.log('docs: ', docs);
-            const intermDocsArr = [];
-            docs.forEach(async (dId) => {
-                const dnam = await blankspace.getDocName(dId);
-                console.log('dnam: ', dnam);
-                intermDocsArr.push({
-                    'doc_id': dId,
-                    'doc_name': dnam
-                })
-                console.log('intermDocsArr: ', intermDocsArr);
-            })
-            
-            setUserDocs(intermDocsArr);
-        }
-        // const getDocsInterval = setInterval(getDocs, 2000);
-        // return () => clearInterval(getDocsInterval);
-        getDocs();
-    }, [])
 
     const switchDocHandler = () => {
         setSwitchDoc(true);
@@ -105,8 +126,8 @@ const App = () => {
                         {openModal == true ? <ShareModal modalHandler={modalHandler} /> : null}
                         <div>
                             {!switchDoc ? <TopBar showSidebar={showSidebar} docName={docName} setDocName={setDocName} docID={docID} modalHandler={modalHandler} /> : null}
-                            {sidebar ? <SideBar switchDocHandler={switchDocHandler} docs={userDocs} /> : null}
-                            {!switchDoc ? <TextEditor docID={docID} setDocID={setDocID} /> : null}
+                            {sidebar ? <SideBar deleteDoc={deleteDoc} switchDocHandler={switchDocHandler} docs={userDocs} /> : null}
+                            {!switchDoc ? <TextEditor docID={docID} setDocID={setDocID} addDoc={addDoc} /> : null}
                         </div>
                     </>
                 </Route>

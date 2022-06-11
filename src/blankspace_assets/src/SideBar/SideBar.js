@@ -6,22 +6,27 @@ import Child from './Child/Child';
 
 
 export default function SideBar(props) {
-    const [userDocs, setUserDocs] = React.useState([]);
-    
-    var docList = (props.docs).map(d => <div style={{display: 'flex', marginBottom: '10px'}}><li className="doc-menu-item" onClick={props.switchDocHandler}><Link to={"/documents/"+d['doc_id']}>{d['doc_name']}</Link></li><img className="binimg" src="recycle-bin-line.png"/></div>)
 
     return (
         <>
             <div className="sideBarPos">
                 <div className="navBar">
+
                     <div>Your Docs:</div>
+                    <Link to="/">
+                        <button className="newdocbtn" type="button">
+                            <div style={{display: 'flex', paddingTop: '2px', paddingBottom: '2px'}}><img src="plus-line.png" style={{height: '10px', marginBottom: '4px'}}/>
+                            <span style={{marginLeft: '5px'}}>New Document</span></div>
+                        </button>
+                        {/* <div style={{width: '50px', height: '50px', backgroundColor: 'black'}}></div> */}
+                    </Link>
                     <ul>
-                        {docList}
+                        {(props.docs).map(d => <div style={{ display: 'flex', marginBottom: '10px' }}><li className="doc-menu-item" onClick={props.switchDocHandler}><Link to={"/documents/" + d['doc_id']}>{d['doc_name']}</Link></li><img className="binimg" onClick={() => props.deleteDoc(d['doc_id'])} src="recycle-bin-line.png" /></div>)}
                     </ul>
                     {/* {docList} */}
-                    
+
                 </div>
-                
+
             </div>
         </>
     )
