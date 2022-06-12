@@ -6,9 +6,9 @@ export interface ConnectionDetails {
   'typeof' : string,
 }
 export interface _SERVICE {
-  'addToCurrentUsers' : (arg_0: string, arg_1: string) => Promise<undefined>,
+  'addToCurrentUsers' : (arg_0: string) => Promise<undefined>,
   'getActiveUsers' : (arg_0: string) => Promise<Array<string>>,
-  'getConnectionRequest' : (arg_0: string) => Promise<[] | [ConnectionDetails]>,
+  'getConnectionRequest' : () => Promise<[] | [ConnectionDetails]>,
   'getDocContents' : (arg_0: string) => Promise<string>,
   'getDocName' : (arg_0: string) => Promise<string>,
   'getFirst' : (arg_0: string) => Promise<[] | [string]>,
@@ -19,7 +19,6 @@ export interface _SERVICE {
       arg_0: string,
       arg_1: string,
       arg_2: string,
-      arg_3: string,
     ) => Promise<undefined>,
   'updateDocContents' : (arg_0: string, arg_1: string) => Promise<undefined>,
   'updateDocName' : (arg_0: string, arg_1: string) => Promise<undefined>,

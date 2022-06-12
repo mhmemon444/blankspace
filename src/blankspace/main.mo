@@ -29,8 +29,7 @@ actor Blankspace {
 
   public type ConnectionDetails = Types.ConnectionDetails; 
 
-  //func query params REMOVE:: initiator
-  public shared(msg) func updateCurrentPeers(initiator : Text, recipient : Text, typeof : Text, sdp : Text) : async() {
+  public shared(msg) func updateCurrentPeers(recipient : Text, typeof : Text, sdp : Text) : async() {
     var init : Principal = msg.caller;
     var initiatorText : Text = Principal.toText(init);
     await Signalling.addConnectionRequest(initiatorText, recipient, typeof, sdp); 
@@ -56,8 +55,7 @@ actor Blankspace {
   };
 
   //this can be changed to shared(msg)
-  // func query params REMOVE:: principal
-  public shared(msg) func addToCurrentUsers(documentID : Text, principal : Text) : async() { 
+  public shared(msg) func addToCurrentUsers(documentID : Text) : async() { 
     var prin : Principal = msg.caller;
     var principalText : Text = Principal.toText(prin);
     var currentDoc : List.List<Text> = switch(activeDocsPrincipalHashmap.get(documentID)){
@@ -72,8 +70,7 @@ actor Blankspace {
   // NOTE: this can be changed to shared(msg) so we no longer require princicpal 
   // NOTE: it should be ok to use ConnectionDetails here (despite it being duplicated code) 
   // as it is a necessary part of the implementation for signalling. 
-  // func query params REMOVE:: principal
-  public shared(msg) func getConnectionRequest(principal : Text) : async ?ConnectionDetails { 
+  public shared(msg) func getConnectionRequest() : async ?ConnectionDetails { 
     var prin : Principal = msg.caller;
     var principalText : Text = Principal.toText(prin);
     let connectionRequest = await Signalling.getConnectionRequest(principalText); 
@@ -134,7 +131,7 @@ actor Blankspace {
   };
 
 // func query params REMOVE:: principal
-  public shared(msg) query func getUsersDocs(principal: Text) : async [Text] {
+  public shared(msg) func getUsersDocs(principal: Text) : async [Text] {
     var prin : Principal = msg.caller;
     var principalText : Text = Principal.toText(prin);
     var docsList : List.List<Text> = switch(usersDocs.get(principalText)){

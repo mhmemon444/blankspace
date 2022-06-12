@@ -3,7 +3,8 @@ import Quill from "quill";
 import 'quill/dist/quill.snow.css';
 import 'react-quill/dist/quill.snow.css';
 import "./TextEditor.css";
-import { blankspace } from "../../../declarations/blankspace/index";
+import { blankspace, canisterId, createActor } from "../../../declarations/blankspace/index";
+import { AuthClient } from "@dfinity/auth-client"; //@dfinity/authentication and @dfinity/identity
 import Peer from "simple-peer";
 import { uuid } from 'uuidv4';
 import { useParams } from 'react-router-dom';
@@ -35,10 +36,18 @@ export default function TextEditor(props) {
   // although there should be another approach? maybe a button a user clicks on the front end to deactivate connected mode? 
   // Remove from current list on exit TODO
   window.addEventListener('beforeunload', async function (e) {
-    for(let i = 0; i < connectedPeers.length; i++){ 
-      connectedPeers[i].destroy(); 
+    for (let i = 0; i < connectedPeers.length; i++) {
+      connectedPeers[i].destroy();
     }
-    await blankspace.removeFromActive(documentId, myPrincipal); 
+    const authClient = await AuthClient.create();
+    const identity = await authClient.getIdentity();
+
+    const authenticatedCanister = createActor(canisterId, {
+      agentOptions: {
+        identity
+      },
+    });
+    await authenticatedCanister.removeFromActive(documentId, myPrincipal);
   });
 
   //Get URL params e.g. docID
@@ -55,7 +64,7 @@ export default function TextEditor(props) {
     const editor = document.createElement('div');
     wrapper.append(editor)
     const q = new Quill(editor, { theme: "snow", modules: { toolbar: TOOLBAR_OPTIONS } })
-    q.setContents({"ops": [{"insert": startuptext, "attributes": {"bold": true}}]})
+    q.setContents({ "ops": [{ "insert": startuptext, "attributes": { "bold": true } }] })
     setQuill(q);
 
   }, [])
@@ -75,9 +84,17 @@ export default function TextEditor(props) {
       });
 
       this.peer.on("signal", async (data) => {
+        const authClient = await AuthClient.create();
+        const identity = await authClient.getIdentity();
+
+        const authenticatedCanister = createActor(canisterId, {
+          agentOptions: {
+            identity
+          },
+        });
         if (this.recipient.length > 0) {
           console.log('SENDING to', this.recipient, data)
-          await blankspace.updateCurrentPeers(this.myPrincipal, this.recipient, data.type, data.sdp);
+          await authenticatedCanister.updateCurrentPeers(this.recipient, data.type, data.sdp);
         }
       });
 
@@ -102,7 +119,7 @@ export default function TextEditor(props) {
         index = connected.indexOf(this.recipient)
         setConnected(connected.splice(index, 1))
         let rec = this.recipient
-        setConnectedPeers(prevConnected => prevConnected.filter(function(e){ return e.recipient !== rec}))
+        setConnectedPeers(prevConnected => prevConnected.filter(function (e) { return e.recipient !== rec }))
       });
     }
 
@@ -152,13 +169,24 @@ export default function TextEditor(props) {
       // get active users from motoko
       console.log("Props.docID", documentId)
       var peersActive = await blankspace.getActiveUsers(documentId);
-      var foundMe = false;  
+      var foundMe = false;
 
-      if (!peersActive.includes(myPrincipal)){ 
-        await blankspace.addToCurrentUsers(documentId, myPrincipal); 
+      const authClient = await AuthClient.create();
+      const identity = await authClient.getIdentity();
+
+      const authenticatedCanister = createActor(canisterId, {
+        agentOptions: {
+          identity
+        },
+      });
+
+      const myprinc = identity._principal.toString();
+
+      if (!peersActive.includes(myprinc)) {
+        await authenticatedCanister.addToCurrentUsers(documentId);
       }
       //add myself to the current users (if im not already added)
-      
+
 
 
       console.log("ACTIVE PEERS", peersActive)
@@ -168,15 +196,15 @@ export default function TextEditor(props) {
         for (let i = 0; i < peersActive.length; i++) {
 
           //only create offers for users which come after me in the list 
-          if (myPrincipal == peersActive[i]) {
+          if (myprinc == peersActive[i]) {
             foundMe = true;
           }
 
-          console.log("OFFERED", offered)     
+          console.log("OFFERED", offered)
           console.log("CONNECTED", connected)
           console.log("MY PEERS", myPeers)
 
-          if (myPrincipal != peersActive[i] && foundMe == true) {
+          if (myprinc != peersActive[i] && foundMe == true) {
             if (connected.indexOf(peersActive[i]) === -1 && offered.indexOf(peersActive[i]) === -1) {
               // create an offer for this recipient 
               createOffer(peersActive[i])
@@ -193,7 +221,16 @@ export default function TextEditor(props) {
   useEffect(() => {
     async function connectionRequests() {
       //get connections which have been sent for my principal  
-      var request = await blankspace.getConnectionRequest(myPrincipal);
+      const authClient = await AuthClient.create();
+      const identity = await authClient.getIdentity();
+
+      const authenticatedCanister = createActor(canisterId, {
+        agentOptions: {
+          identity
+        },
+      });
+
+      var request = await authenticatedCanister.getConnectionRequest();
 
       if (request.length != 0) {
         //if the request is an offer, prepare to send an answer, otherwise if it is an answer, try to connect 
@@ -250,11 +287,22 @@ export default function TextEditor(props) {
 
   // when an offer request is recieved from another peer, handle using this function, ensuring to remove a previous peer created from them
   function handleOffer(request) {
+    const authClient = await AuthClient.create();
+    const identity = await authClient.getIdentity();
+
+    const authenticatedCanister = createActor(canisterId, {
+      agentOptions: {
+        identity
+      },
+    });
+
+    const myprinc = identity._principal.toString();
+
     var recipient = request[0].initiator
     destroyPeer(recipient)
     // create a peer for this particular offer, add to myPeers list, and signal back 
     var jsonData = { "type": request[0].typeof, "sdp": request[0].sdp }
-    var p = new MyPeer("", myPrincipal);
+    var p = new MyPeer("", myprinc);
     p.setRecipient(recipient)
     myPeers.push(p)
     p.peer.signal(jsonData)
@@ -289,15 +337,26 @@ export default function TextEditor(props) {
     }
   }
 
-  useEffect(() => { 
-    const sendDoc = async () => { 
-      var head = await blankspace.getFirst(documentId);  
-      console.log('HEAD', head); 
-      console.log('MY PRINCIPAL', myPrincipal)
-      var delta = quill.getContents(); 
-      if(head[0] === myPrincipal){ 
+  useEffect(() => {
+    const sendDoc = async () => {
+      const authClient = await AuthClient.create();
+      const identity = await authClient.getIdentity();
+
+      const authenticatedCanister = createActor(canisterId, {
+        agentOptions: {
+          identity
+        },
+      });
+
+      const myprinc = identity._principal.toString();
+
+      var head = await blankspace.getFirst(documentId);
+      console.log('HEAD', head);
+      console.log('MY PRINCIPAL', myprinc)
+      var delta = quill.getContents();
+      if (head[0] === myprinc) {
         console.log('SENDING DELTA TO CONNECTED PEERS', delta)
-        for (let i = 0; i < connectedPeers.length; i++){ 
+        for (let i = 0; i < connectedPeers.length; i++) {
           connectedPeers[i].getPeer().send(JSON.stringify(delta))
         }
       }
@@ -305,7 +364,7 @@ export default function TextEditor(props) {
     if (quillLoaded) {
       sendDoc();
     }
-  }, [connectedPeers, quillLoaded]); 
+  }, [connectedPeers, quillLoaded]);
 
   // when text is updated, send to all connected peers
   useEffect(() => {
@@ -336,14 +395,14 @@ export default function TextEditor(props) {
     var val = json.ops[0]
     console.log('JSON', json)
     console.log('json insert', json.ops[0])
-    if(json.ops[0].hasOwnProperty('insert')){
-      if(val.insert.length > 1){
+    if (json.ops[0].hasOwnProperty('insert')) {
+      if (val.insert.length > 1) {
         console.log('RECEIVING DELTA and UPDATING CONTENT', delta)
         quill.setContents(JSON.parse(delta))
-      } else { 
+      } else {
         quill.updateContents(JSON.parse(delta));
       }
-    } else { 
+    } else {
       quill.updateContents(JSON.parse(delta));
     }
 
@@ -352,11 +411,22 @@ export default function TextEditor(props) {
   useEffect(() => {
     if (quillLoaded) {
       const retrieveDocContent = async () => {
+        const authClient = await AuthClient.create();
+        const identity = await authClient.getIdentity();
+
+        const authenticatedCanister = createActor(canisterId, {
+          agentOptions: {
+            identity
+          },
+        });
+
+        const myprinc = identity._principal.toString();
+
         const docContent = await blankspace.getDocContents(documentId);
         // console.log("docContent: ", docContent);
         if (docContent == "null") { //new document
           console.log("new doc");
-          await blankspace.updateUsersDocs(myPrincipal, documentId);
+          await authenticatedCanister.updateUsersDocs(myprinc, documentId);
         } else {
           quill.setText(docContent)
         }

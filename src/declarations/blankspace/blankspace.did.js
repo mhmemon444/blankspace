@@ -6,24 +6,16 @@ export const idlFactory = ({ IDL }) => {
     'typeof' : IDL.Text,
   });
   return IDL.Service({
-    'addToCurrentUsers' : IDL.Func([IDL.Text, IDL.Text], [], []),
+    'addToCurrentUsers' : IDL.Func([IDL.Text], [], []),
     'getActiveUsers' : IDL.Func([IDL.Text], [IDL.Vec(IDL.Text)], []),
-    'getConnectionRequest' : IDL.Func(
-        [IDL.Text],
-        [IDL.Opt(ConnectionDetails)],
-        [],
-      ),
+    'getConnectionRequest' : IDL.Func([], [IDL.Opt(ConnectionDetails)], []),
     'getDocContents' : IDL.Func([IDL.Text], [IDL.Text], ['query']),
     'getDocName' : IDL.Func([IDL.Text], [IDL.Text], ['query']),
     'getFirst' : IDL.Func([IDL.Text], [IDL.Opt(IDL.Text)], []),
-    'getUsersDocs' : IDL.Func([IDL.Text], [IDL.Vec(IDL.Text)], ['query']),
+    'getUsersDocs' : IDL.Func([IDL.Text], [IDL.Vec(IDL.Text)], []),
     'removeFromActive' : IDL.Func([IDL.Text, IDL.Text], [], []),
     'removeUserDoc' : IDL.Func([IDL.Text, IDL.Text], [], []),
-    'updateCurrentPeers' : IDL.Func(
-        [IDL.Text, IDL.Text, IDL.Text, IDL.Text],
-        [],
-        [],
-      ),
+    'updateCurrentPeers' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [], []),
     'updateDocContents' : IDL.Func([IDL.Text, IDL.Text], [], []),
     'updateDocName' : IDL.Func([IDL.Text, IDL.Text], [], []),
     'updateUsersDocs' : IDL.Func([IDL.Text, IDL.Text], [], []),
