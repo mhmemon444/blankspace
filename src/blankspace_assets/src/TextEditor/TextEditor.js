@@ -286,7 +286,7 @@ export default function TextEditor(props) {
   }
 
   // when an offer request is recieved from another peer, handle using this function, ensuring to remove a previous peer created from them
-  function handleOffer(request) {
+  async function handleOffer(request) {
     const authClient = await AuthClient.create();
     const identity = await authClient.getIdentity();
 
