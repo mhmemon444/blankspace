@@ -29,8 +29,11 @@ actor Blankspace {
 
   public type ConnectionDetails = Types.ConnectionDetails; 
 
-  public func updateCurrentPeers(initiator : Text, recipient : Text, typeof : Text, sdp : Text) : async() {
-    await Signalling.addConnectionRequest(initiator, recipient, typeof, sdp); 
+  //func query params REMOVE:: initiator
+  public shared(msg) func updateCurrentPeers(initiator : Text, recipient : Text, typeof : Text, sdp : Text) : async() {
+    var init : Principal = msg.caller;
+    var initiatorText : Text = Principal.toText(init);
+    await Signalling.addConnectionRequest(initiatorText, recipient, typeof, sdp); 
   };
 
   // NOTE: this should be handled here without calling to signalling, signalling should only know about specific users and their connections 
@@ -53,34 +56,42 @@ actor Blankspace {
   };
 
   //this can be changed to shared(msg)
-  public func addToCurrentUsers(documentID : Text, principal : Text) : async() { 
+  // func query params REMOVE:: principal
+  public shared(msg) func addToCurrentUsers(documentID : Text, principal : Text) : async() { 
+    var prin : Principal = msg.caller;
+    var principalText : Text = Principal.toText(prin);
     var currentDoc : List.List<Text> = switch(activeDocsPrincipalHashmap.get(documentID)){
         case null List.nil<Text>(); 
         case (?result) result;
     }; 
 
-    currentDoc := List.push(principal, currentDoc);
+    currentDoc := List.push(principalText, currentDoc);
     activeDocsPrincipalHashmap.put(documentID, currentDoc); 
   };
 
   // NOTE: this can be changed to shared(msg) so we no longer require princicpal 
   // NOTE: it should be ok to use ConnectionDetails here (despite it being duplicated code) 
   // as it is a necessary part of the implementation for signalling. 
-  public func getConnectionRequest(principal : Text) : async ?ConnectionDetails { 
-    let connectionRequest = await Signalling.getConnectionRequest(principal); 
+  // func query params REMOVE:: principal
+  public shared(msg) func getConnectionRequest(principal : Text) : async ?ConnectionDetails { 
+    var prin : Principal = msg.caller;
+    var principalText : Text = Principal.toText(prin);
+    let connectionRequest = await Signalling.getConnectionRequest(principalText); 
   };
   
-
-  public func removeFromActive(documentID : Text, principal : Text ) : async () {
+// func query params REMOVE:: principal
+  public shared(msg) func removeFromActive(documentID : Text, principal : Text ) : async () {
     Debug.print(debug_show(principal));
     Debug.print(debug_show("DELETING FROM ACTIVE"));
+    var prin : Principal = msg.caller;
+    var principalText : Text = Principal.toText(prin);
 
     var currentDoc : List.List<Text> = switch(activeDocsPrincipalHashmap.get(documentID)){
         case null List.nil<Text>(); 
         case (?result) result;
     }; 
     currentDoc := List.filter(currentDoc, func (user : Text) : Bool {
-        user != principal
+        user != principalText;
     });
     activeDocsPrincipalHashmap.put(documentID, currentDoc); 
   };
@@ -98,10 +109,13 @@ actor Blankspace {
   //Hashmap of users (note: currently text later expand to Principal type) to docs (array of docIDs)
   //---------Keeping track of which documents belong to which users
   var usersDocs = HashMap.HashMap<Text, List.List<Text>>(1, Text.equal, Text.hash);
-  public func updateUsersDocs(principal: Text, docID: Text) : async () {
+  // func query params REMOVE:: principal
+  public shared(msg) func updateUsersDocs(principal: Text, docID: Text) : async () {
     Debug.print(debug_show(principal));
     Debug.print(debug_show(docID));
-    var docsList : List.List<Text> = switch(usersDocs.get(principal)){
+     var prin : Principal = msg.caller;
+    var principalText : Text = Principal.toText(prin);
+    var docsList : List.List<Text> = switch(usersDocs.get(principalText)){
       case null List.nil<Text>(); 
       case (?result) result; 
     };
@@ -116,25 +130,31 @@ actor Blankspace {
 
 
     docsList := List.push(docID, docsList);
-    usersDocs.put(principal, docsList);
+    usersDocs.put(principalText, docsList);
   };
 
-  public query func getUsersDocs(principal: Text) : async [Text] {
-    var docsList : List.List<Text> = switch(usersDocs.get(principal)){
+// func query params REMOVE:: principal
+  public shared(msg) query func getUsersDocs(principal: Text) : async [Text] {
+    var prin : Principal = msg.caller;
+    var principalText : Text = Principal.toText(prin);
+    var docsList : List.List<Text> = switch(usersDocs.get(principalText)){
       case null List.nil<Text>(); 
       case (?result) result; 
     };
     return ( List.toArray<Text>(docsList) ); 
   };
 
-  public func removeUserDoc(principal: Text, docID: Text) : async () {
-    var docsList : List.List<Text> = switch(usersDocs.get(principal)){
+// func query params REMOVE:: principal
+  public shared(msg) func removeUserDoc(principal: Text, docID: Text) : async () {
+    var prin : Principal = msg.caller;
+    var principalText : Text = Principal.toText(prin);
+    var docsList : List.List<Text> = switch(usersDocs.get(principalText)){
       case null List.nil<Text>(); 
       case (?result) result; 
     };
 
     docsList := List.filter(docsList, func(val: Text) : Bool { docID != val });
-    usersDocs.put(principal, docsList);
+    usersDocs.put(principalText, docsList);
   };
 
 

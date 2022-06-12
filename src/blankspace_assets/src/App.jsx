@@ -4,7 +4,8 @@ import TextEditor from "./TextEditor/TextEditor";
 import TopBar from "./TopBar/TopBar";
 import ShareModal from "./TopBar/ShareModal/ShareModal";
 import SideBar from "./SideBar/SideBar";
-import { blankspace } from "../../declarations/blankspace/index";
+import { blankspace, canisterId, createActor } from "../../declarations/blankspace/index";
+import { AuthClient } from "@dfinity/auth-client"; //@dfinity/authentication and @dfinity/identity
 import { uuid } from 'uuidv4';
 
 import "./index.css";
@@ -20,13 +21,26 @@ const App = () => {
     const myPrincipal = "#hassan";
 
     React.useEffect(() => {
+        var authenticatedCanister;
+        const setupAuthCanister = async () => {
+            const authClient = await AuthClient.create();
+            const identity = await authClient.getIdentity();
+
+            authenticatedCanister = createActor(canisterId, {
+                agentOptions: {
+                    identity
+                },
+            });
+        }
+        setupAuthCanister();
+
         const getDocs = async () => {
             console.log('myPrincipal: ', myPrincipal);
-            const docs = await blankspace.getUsersDocs(myPrincipal);
+            const docs = await authenticatedCanister.getUsersDocs(myPrincipal);
             console.log('docs: ', docs);
             const intermDocsArr = [];
-            for (var i = 0 ; i < docs.length ; i++) {
-                const dnam = await blankspace.getDocName(docs[i]);
+            for (var i = 0; i < docs.length; i++) {
+                const dnam = await authenticatedCanister.getDocName(docs[i]);
                 console.log('dnam: ', dnam);
                 intermDocsArr.push({
                     'doc_id': docs[i],
@@ -42,7 +56,7 @@ const App = () => {
         // getDocs();
     }, []);
 
-    
+
     React.useEffect(() => {
         console.log("userDocs : ", userDocs);
     }, [userDocs])
@@ -53,7 +67,15 @@ const App = () => {
                 return docItem['doc_id'] !== id;
             })
         })
-        await blankspace.removeUserDoc(myPrincipal, id);
+        const authClient = await AuthClient.create();
+        const identity = await authClient.getIdentity();
+
+        const authenticatedCanister = createActor(canisterId, {
+            agentOptions: {
+                identity
+            },
+        });
+        await authenticatedCanister.removeUserDoc(myPrincipal, id);
     }
 
     async function addDoc(id) {
@@ -90,7 +112,7 @@ const App = () => {
     }, [switchDoc])
 
 
-    
+
 
     const sidebarElement = (
         <>
@@ -102,39 +124,39 @@ const App = () => {
 
 
 
-        // return (
-//         <>
-//         { openModal == true ? <ShareModal modalHandler={modalHandler} /> : null
-// }
-// <div>
-//     <TopBar showSidebar={showSidebar} docName={docName} setDocName={setDocName} docID={docID} modalHandler={modalHandler} />
-//     {sidebar ? sidebarElement : null}
-//     <TextEditor docID={docID} setDocID={setDocID} />
-// </div>
-//         </>
+    // return (
+    //         <>
+    //         { openModal == true ? <ShareModal modalHandler={modalHandler} /> : null
+    // }
+    // <div>
+    //     <TopBar showSidebar={showSidebar} docName={docName} setDocName={setDocName} docID={docID} modalHandler={modalHandler} />
+    //     {sidebar ? sidebarElement : null}
+    //     <TextEditor docID={docID} setDocID={setDocID} />
+    // </div>
+    //         </>
     // );
     return (
-    <>
-        <Router>
-            <Switch>
-                <Route path="/" exact>
-                    <Redirect to={`/documents/${uuid()}`} />
-                </Route>
-                <Route path="/documents/:id" exact>
-                    {/* <TextEditor /> */}
-                    <>
-                        {openModal == true ? <ShareModal modalHandler={modalHandler} /> : null}
-                        <div>
-                            {!switchDoc ? <TopBar showSidebar={showSidebar} docName={docName} setDocName={setDocName} docID={docID} modalHandler={modalHandler} /> : null}
-                            {sidebar ? <SideBar deleteDoc={deleteDoc} switchDocHandler={switchDocHandler} docs={userDocs} /> : null}
-                            {!switchDoc ? <TextEditor docID={docID} setDocID={setDocID} addDoc={addDoc} /> : null}
-                        </div>
-                    </>
-                </Route>
-            </Switch>
-        </Router>
-    </>
-);
+        <>
+            <Router>
+                <Switch>
+                    <Route path="/" exact>
+                        <Redirect to={`/documents/${uuid()}`} />
+                    </Route>
+                    <Route path="/documents/:id" exact>
+                        {/* <TextEditor /> */}
+                        <>
+                            {openModal == true ? <ShareModal modalHandler={modalHandler} /> : null}
+                            <div>
+                                {!switchDoc ? <TopBar showSidebar={showSidebar} docName={docName} setDocName={setDocName} docID={docID} modalHandler={modalHandler} /> : null}
+                                {sidebar ? <SideBar deleteDoc={deleteDoc} switchDocHandler={switchDocHandler} docs={userDocs} /> : null}
+                                {!switchDoc ? <TextEditor docID={docID} setDocID={setDocID} addDoc={addDoc} /> : null}
+                            </div>
+                        </>
+                    </Route>
+                </Switch>
+            </Router>
+        </>
+    );
 };
 
 export default App;
