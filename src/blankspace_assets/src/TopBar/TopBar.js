@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import "./TopBar.css";
 import { blankspace } from '../../../declarations/blankspace/index';
 import { useParams } from 'react-router-dom';
+import Avatar from './Avatar/Avatar';
 
 export default function TopBar(props) {
     const [active, setActive] = React.useState([]);
@@ -44,12 +45,15 @@ export default function TopBar(props) {
                 </div>
                 <div style={{ fontSize: '10px', marginLeft: '70px' }}>{documentId}</div>
             </div>
-            <div>
-                Active: {active}
-            </div>
             <div className="shareBtnClass">
-                <button className="shareBtn" onClick={shareBtnClickHandler}>Share</button>
+                <div className="activeee">
+                    Active Users: <div style={{display: 'flex'}}>{active.map((a, i) => <Avatar a={a} i={i+1}/>)}</div>
+                </div>
+                <div >
+                    <button className="shareBtn" onClick={shareBtnClickHandler}>Share</button>
+                </div>
             </div>
+
         </div>
     )
 }

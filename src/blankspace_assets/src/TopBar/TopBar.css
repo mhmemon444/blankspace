@@ -6,6 +6,12 @@
 .shareBtnClass {
     width: 100%;
     text-align: right;
+    display: flex;
+    justify-content: right;
+}
+
+.activeee {
+    margin-right: 50px;
 }
 
 .shareBtn {
