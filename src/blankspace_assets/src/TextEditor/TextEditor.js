@@ -147,19 +147,18 @@ export default function TextEditor(props) {
 
     // addNewDoc();
 
+    async function initialRun(){ 
+      var currentActive = await blankspace.getActiveUsers(documentId);
+      if (!currentActive.includes(myPrincipal)){ 
+        await blankspace.addToCurrentUsers(documentId, myPrincipal); 
+      }
+    }
 
     async function activeUserUpdate() {
       // get active users from motoko
       console.log("Props.docID", documentId)
       var peersActive = await blankspace.getActiveUsers(documentId);
       var foundMe = false;  
-
-      if (!peersActive.includes(myPrincipal)){ 
-        await blankspace.addToCurrentUsers(documentId, myPrincipal); 
-      }
-      //add myself to the current users (if im not already added)
-      
-
 
       console.log("ACTIVE PEERS", peersActive)
 
@@ -185,6 +184,8 @@ export default function TextEditor(props) {
         }
       }
     }
+
+    initialRun()
     const intervalOne = setInterval(activeUserUpdate, 5000);
     return () => clearInterval(intervalOne);
   }, []);
