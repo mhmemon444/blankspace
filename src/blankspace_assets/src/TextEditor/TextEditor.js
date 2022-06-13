@@ -19,8 +19,8 @@ const TOOLBAR_OPTIONS = [
   ["image", "blockquote", "code-block"],
   ["clean"],
 ]
-// const myPrincipal = (Math.random() + 1).toString(36).substring(7);
-const myPrincipal = "#hassan";
+const myPrincipal = (Math.random() + 1).toString(36).substring(7);
+// const myPrincipal = "#hassan";
 
 export default function TextEditor(props) {
   const [quill, setQuill] = useState()
