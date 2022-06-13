@@ -22,7 +22,7 @@ async function handleAuthenticated(authClient) {
   const identity = await authClient.getIdentity();
   const userPrincipal = identity._principal.toString();
   console.log("userPrincipal: ", userPrincipal);
-  render(<App />, document.getElementById("app"));
+  render(<App princ={userPrincipal}/>, document.getElementById("app"));
 }
 
 init();

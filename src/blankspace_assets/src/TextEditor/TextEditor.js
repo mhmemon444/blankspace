@@ -21,7 +21,6 @@ const TOOLBAR_OPTIONS = [
   ["clean"],
 ]
 // const myPrincipal = (Math.random() + 1).toString(36).substring(7);
-const myPrincipal = "#hassan";
 
 export default function TextEditor(props) {
   const [quill, setQuill] = useState()
@@ -31,6 +30,7 @@ export default function TextEditor(props) {
   const [connectedPeers, setConnectedPeers] = useState([]);
   const [contents, setContents] = useState("");
   const [quillLoaded, setQuillLoaded] = useState(false);
+  const myPrincipal = props.princ;
 
   // NOTE: this was my attempt at removing users from an active user, here when a user xs out they get disconnected 
   // although there should be another approach? maybe a button a user clicks on the front end to deactivate connected mode? 
@@ -139,6 +139,7 @@ export default function TextEditor(props) {
 
 
   useEffect(() => {
+    console.log("PRINCCCCCCCCCCyyyyyy ", props.princ);
     //check if new doc (empty doc ID) -> later expand to react router url params
     // const addNewDoc = async () => {
     //   if (props.docID == "") {
@@ -180,7 +181,7 @@ export default function TextEditor(props) {
         },
       });
 
-      const myprinc = identity._principal.toString();
+      const myprinc = props.princ;
 
       if (!peersActive.includes(myprinc)) {
         await authenticatedCanister.addToCurrentUsers(documentId);
@@ -296,7 +297,7 @@ export default function TextEditor(props) {
       },
     });
 
-    const myprinc = identity._principal.toString();
+    const myprinc = props.princ;
 
     var recipient = request[0].initiator
     destroyPeer(recipient)
@@ -348,7 +349,7 @@ export default function TextEditor(props) {
         },
       });
 
-      const myprinc = identity._principal.toString();
+      const myprinc = props.princ;
 
       var head = await blankspace.getFirst(documentId);
       console.log('HEAD', head);
@@ -420,7 +421,7 @@ export default function TextEditor(props) {
           },
         });
 
-        const myprinc = identity._principal.toString();
+        const myprinc = props.princ;
 
         const docContent = await blankspace.getDocContents(documentId);
         // console.log("docContent: ", docContent);

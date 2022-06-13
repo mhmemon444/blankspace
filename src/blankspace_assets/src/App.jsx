@@ -10,7 +10,7 @@ import { uuid } from 'uuidv4';
 
 import "./index.css";
 
-const App = () => {
+const App = (props) => {
     const [docName, setDocName] = React.useState("Untitled");
     const [docID, setDocID] = React.useState("");
     const [openModal, setOpenModal] = React.useState(false);
@@ -21,6 +21,7 @@ const App = () => {
     const myPrincipal = "#hassan";
 
     React.useEffect(() => {
+        console.log("PROPS PRINCIPAL: ", props.princ);
         var authenticatedCanister;
         const setupAuthCanister = async () => {
             const authClient = await AuthClient.create();
@@ -35,8 +36,8 @@ const App = () => {
         setupAuthCanister();
 
         const getDocs = async () => {
-            console.log('myPrincipal: ', myPrincipal);
-            const docs = await authenticatedCanister.getUsersDocs(myPrincipal);
+            console.log('myPrincipal: ', props.princ);
+            const docs = await authenticatedCanister.getUsersDocs(props.princ);
             console.log('docs: ', docs);
             const intermDocsArr = [];
             for (var i = 0; i < docs.length; i++) {
@@ -75,7 +76,7 @@ const App = () => {
                 identity
             },
         });
-        await authenticatedCanister.removeUserDoc(myPrincipal, id);
+        await authenticatedCanister.removeUserDoc(props.princ, id);
     }
 
     async function addDoc(id) {
@@ -149,7 +150,7 @@ const App = () => {
                             <div>
                                 {!switchDoc ? <TopBar showSidebar={showSidebar} docName={docName} setDocName={setDocName} docID={docID} modalHandler={modalHandler} /> : null}
                                 {sidebar ? <SideBar deleteDoc={deleteDoc} switchDocHandler={switchDocHandler} docs={userDocs} /> : null}
-                                {!switchDoc ? <TextEditor docID={docID} setDocID={setDocID} addDoc={addDoc} /> : null}
+                                {!switchDoc ? <TextEditor princ={props.princ} docID={docID} setDocID={setDocID} addDoc={addDoc} /> : null}
                             </div>
                         </>
                     </Route>
