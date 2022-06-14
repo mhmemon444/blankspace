@@ -16,6 +16,7 @@ export default function TopBar(props) {
         }
         const getActive = async () => {
             var peersActive = await blankspace.getActiveUsers(documentId);
+            peersActive.reverse();
             setActive(peersActive);
         }
         getDocName();
@@ -47,7 +48,7 @@ export default function TopBar(props) {
             </div>
             <div className="shareBtnClass">
                 <div className="activeee">
-                    <span style={{fontSize: '18px'}}>Active Users:</span> <div style={{display: 'flex'}}>{active.map((a, i) => <Avatar a={a} i={i+1}/>)}</div>
+                    <span style={{fontSize: '18px'}}>Active Users:</span> <div style={{display: 'flex', fontSize: '12px'}}>{active.length == 0 ? "Connecting..." : active.map((a, i) => <Avatar a={a} i={i+1}/>)}</div>
                 </div>
                 <div >
                     <button className="shareBtn" onClick={shareBtnClickHandler}>Share</button>
