@@ -47,7 +47,7 @@ export default function TopBar(props) {
             </div>
             <div className="shareBtnClass">
                 <div className="activeee">
-                    Active Users: <div style={{display: 'flex'}}>{active.map((a, i) => <Avatar a={a} i={i+1}/>)}</div>
+                    <span style={{fontSize: '18px'}}>Active Users:</span> <div style={{display: 'flex'}}>{active.map((a, i) => <Avatar a={a} i={i+1}/>)}</div>
                 </div>
                 <div >
                     <button className="shareBtn" onClick={shareBtnClickHandler}>Share</button>
