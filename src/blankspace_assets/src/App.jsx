@@ -44,9 +44,9 @@ const App = () => {
             }
             setUserDocs(intermDocsArr);
         }
-        getDocs();
-        // const getDocsInterval = setInterval(getDocs, 5000);
-        // return () => clearInterval(getDocsInterval);
+        // getDocs();
+        const getDocsInterval = setInterval(getDocs, 3000);
+        return () => clearInterval(getDocsInterval);
         // getDocs();
     }, []);
 
