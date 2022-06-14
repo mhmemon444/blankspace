@@ -71,6 +71,12 @@ export default function TextEditor(props) {
       this.peer = new Peer({
         initiator: this.recipient.length > 0,
         trickle: false,
+        config: {
+          iceServers : [ 
+            {urls : "stun:stun.blankspace.live:5349"}, 
+            {urls : "turn:turn.blankspace.live:5349", username : 'danhass', credential : 'ourblankspace'}
+          ]
+        }
       });
 
       this.peer.on("signal", async (data) => {
@@ -95,6 +101,7 @@ export default function TextEditor(props) {
       })
 
       this.peer.on("error", (err) => {
+        console.log(err)
         console.log("Error for Peer", this.recipient)
         var index = offered.indexOf(this.recipient)
         setOffered(offered.splice(index, 1))
