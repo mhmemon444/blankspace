@@ -98,10 +98,12 @@ actor Blankspace {
   //Hashmap of users (note: currently text later expand to Principal type) to docs (array of docIDs)
   //---------Keeping track of which documents belong to which users
   var usersDocs = HashMap.HashMap<Text, List.List<Text>>(1, Text.equal, Text.hash);
-  public func updateUsersDocs(principal: Text, docID: Text) : async () {
+  public shared(msg) func updateUsersDocs(principal: Text, docID: Text) : async () {
     Debug.print(debug_show(principal));
     Debug.print(debug_show(docID));
-    var docsList : List.List<Text> = switch(usersDocs.get(principal)){
+    var prin : Principal = msg.caller;
+    var principalText : Text = Principal.toText(prin);
+    var docsList : List.List<Text> = switch(usersDocs.get(principalText)){
       case null List.nil<Text>(); 
       case (?result) result; 
     };
@@ -116,7 +118,7 @@ actor Blankspace {
 
 
     docsList := List.push(docID, docsList);
-    usersDocs.put(principal, docsList);
+    usersDocs.put(principalText, docsList);
   };
 
   public shared(msg) func getUsersDocs(principal: Text) : async [Text] {
@@ -129,14 +131,16 @@ actor Blankspace {
     return ( List.toArray<Text>(docsList) ); 
   };
 
-  public func removeUserDoc(principal: Text, docID: Text) : async () {
-    var docsList : List.List<Text> = switch(usersDocs.get(principal)){
+  public shared(msg) func removeUserDoc(principal: Text, docID: Text) : async () {
+    var prin : Principal = msg.caller;
+    var principalText : Text = Principal.toText(prin);
+    var docsList : List.List<Text> = switch(usersDocs.get(principalText)){
       case null List.nil<Text>(); 
       case (?result) result; 
     };
 
     docsList := List.filter(docsList, func(val: Text) : Bool { docID != val });
-    usersDocs.put(principal, docsList);
+    usersDocs.put(principalText, docsList);
   };
 
 

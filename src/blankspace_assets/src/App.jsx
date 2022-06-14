@@ -61,7 +61,15 @@ const App = () => {
                 return docItem['doc_id'] !== id;
             })
         })
-        await blankspace.removeUserDoc(myPrincipal, id);
+        const authClient = await AuthClient.create();
+        const identity = await authClient.getIdentity();
+
+        const authenticatedCanister = createActor(canisterId, {
+            agentOptions: {
+                identity
+            },
+        });
+        await authenticatedCanister.removeUserDoc(myPrincipal, id);
     }
 
     async function addDoc(id) {

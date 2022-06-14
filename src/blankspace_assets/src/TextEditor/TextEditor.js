@@ -3,10 +3,11 @@ import Quill from "quill";
 import 'quill/dist/quill.snow.css';
 import 'react-quill/dist/quill.snow.css';
 import "./TextEditor.css";
-import { blankspace } from "../../../declarations/blankspace/index";
+import { blankspace, canisterId, createActor } from "../../../declarations/blankspace/index";
 import Peer from "simple-peer";
 import { uuid } from 'uuidv4';
 import { useParams } from 'react-router-dom';
+import { AuthClient } from "@dfinity/auth-client"; //@dfinity/authentication and @dfinity/identity
 import myPrincipal from "../constants/userid";
 
 const TOOLBAR_OPTIONS = [
@@ -359,7 +360,15 @@ export default function TextEditor(props) {
         if (docContent == "null") { //new document
           console.log("new doc");
           props.addDoc(documentId);
-          await blankspace.updateUsersDocs(myPrincipal, documentId);
+          const authClient = await AuthClient.create();
+            const identity = await authClient.getIdentity();
+
+            const authenticatedCanister = createActor(canisterId, {
+                agentOptions: {
+                    identity
+                },
+            });
+          await authenticatedCanister.updateUsersDocs(myPrincipal, documentId);
         } else {
           quill.setText(docContent)
         }
