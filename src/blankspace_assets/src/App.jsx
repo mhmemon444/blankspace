@@ -6,6 +6,7 @@ import ShareModal from "./TopBar/ShareModal/ShareModal";
 import SideBar from "./SideBar/SideBar";
 import { blankspace } from "../../declarations/blankspace/index";
 import { uuid } from 'uuidv4';
+import myPrincipal from "./constants/userid";
 
 import "./index.css";
 
@@ -16,8 +17,6 @@ const App = () => {
     const [sidebar, setSidebar] = React.useState(false);
     const [switchDoc, setSwitchDoc] = React.useState(false);
     const [userDocs, setUserDocs] = React.useState([]);
-
-    const myPrincipal = "#hassan";
 
     React.useEffect(() => {
         const getDocs = async () => {
@@ -62,9 +61,14 @@ const App = () => {
             'doc_name': 'Untitled'
         }
 
-        setUserDocs(prevDocs => {
-            return prevDocs.push(newDoc)
-        })
+        for (var i = 0; i < userDocs.length ; i++) {
+            var checkDoc = userDocs[i];
+            if (checkDoc['doc_id'] == id) {
+                return;
+            }
+        }
+
+        setUserDocs(prevDocs => [...prevDocs, newDoc])
     }
 
     const showSidebar = () => setSidebar(!sidebar)

@@ -7,6 +7,7 @@ import { blankspace } from "../../../declarations/blankspace/index";
 import Peer from "simple-peer";
 import { uuid } from 'uuidv4';
 import { useParams } from 'react-router-dom';
+import myPrincipal from "../constants/userid";
 
 const TOOLBAR_OPTIONS = [
   [{ header: [1, 2, 3, 4, 5, 6, false] }],
@@ -19,7 +20,7 @@ const TOOLBAR_OPTIONS = [
   ["image", "blockquote", "code-block"],
   ["clean"],
 ]
-const myPrincipal = (Math.random() + 1).toString(36).substring(7);
+// const myPrincipal = (Math.random() + 1).toString(36).substring(7);
 // const myPrincipal = "#hassan";
 
 export default function TextEditor(props) {
@@ -357,6 +358,7 @@ export default function TextEditor(props) {
         // console.log("docContent: ", docContent);
         if (docContent == "null") { //new document
           console.log("new doc");
+          props.addDoc(documentId);
           await blankspace.updateUsersDocs(myPrincipal, documentId);
         } else {
           quill.setText(docContent)
