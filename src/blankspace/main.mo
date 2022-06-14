@@ -119,8 +119,10 @@ actor Blankspace {
     usersDocs.put(principal, docsList);
   };
 
-  public query func getUsersDocs(principal: Text) : async [Text] {
-    var docsList : List.List<Text> = switch(usersDocs.get(principal)){
+  public shared(msg) func getUsersDocs(principal: Text) : async [Text] {
+    var prin : Principal = msg.caller;
+    var principalText : Text = Principal.toText(prin);
+    var docsList : List.List<Text> = switch(usersDocs.get(principalText)){
       case null List.nil<Text>(); 
       case (?result) result; 
     };
