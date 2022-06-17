@@ -17,6 +17,8 @@ const App = () => {
     const [sidebar, setSidebar] = React.useState(false);
     const [switchDoc, setSwitchDoc] = React.useState(false);
     const [userDocs, setUserDocs] = React.useState([]);
+    const [exportD, setExportD] = React.useState(false);
+    const [overallQuill, setOverallQuill] = React.useState();
 
     React.useEffect(() => {
         const getDocs = async () => {
@@ -105,6 +107,18 @@ const App = () => {
         }
     }, [switchDoc])
 
+    const exportDocHandler = () => {
+        setExportD(true);
+    }
+
+    React.useEffect(() => {
+        if (exportD) {
+            setTimeout(() => {
+                setExportD(false);
+            }, 1000)
+        }
+    }, [exportD])
+
 
     
 
@@ -141,9 +155,9 @@ const App = () => {
                     <>
                         {openModal == true ? <ShareModal modalHandler={modalHandler} /> : null}
                         <div>
-                            {!switchDoc ? <TopBar showSidebar={showSidebar} docName={docName} setDocName={setDocName} docID={docID} modalHandler={modalHandler} /> : null}
+                            {!switchDoc ? <TopBar exportDoc={exportDocHandler} showSidebar={showSidebar} docName={docName} setDocName={setDocName} docID={docID} modalHandler={modalHandler} /> : null}
                             {sidebar ? <SideBar deleteDoc={deleteDoc} switchDocHandler={switchDocHandler} docs={userDocs} /> : null}
-                            {!switchDoc ? <TextEditor docID={docID} setDocID={setDocID} addDoc={addDoc} /> : null}
+                            {!switchDoc ? <TextEditor exportD={exportD} docName={docName} docID={docID} setDocID={setDocID} addDoc={addDoc} /> : null}
                         </div>
                     </>
                 </Route>
