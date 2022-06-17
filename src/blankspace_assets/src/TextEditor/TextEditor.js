@@ -48,6 +48,21 @@ export default function TextEditor(props) {
   const startuptext = "Welcome to blankspace...";
   // Pulling in user id from URL as a hash '#NAME'
 
+  useEffect(() => {       
+		//this will called when component is about to unmount  	
+    return () => { 
+  	   //clean up code  
+       async function remove() {
+        for(let i = 0; i < connectedPeers.length; i++){ 
+          connectedPeers[i].destroy(); 
+        }
+        await blankspace.removeFromActive(documentId, myPrincipal);
+       }
+       remove();
+       
+ 	}  
+ }, []);  
+
   // Sets up the wrapper (a div around the quill) for quill front end element
   const wrapperRef = useCallback((wrapper) => {
     if (wrapper == null) return;
