@@ -9,6 +9,8 @@ import { uuid } from 'uuidv4';
 import { useParams } from 'react-router-dom';
 import { AuthClient } from "@dfinity/auth-client"; //@dfinity/authentication and @dfinity/identity
 import myPrincipal from "../constants/userid";
+import { saveAs } from 'file-saver';
+import { pdfExporter } from 'quill-to-pdf';
 
 const TOOLBAR_OPTIONS = [
   [{ header: [1, 2, 3, 4, 5, 6, false] }],
@@ -37,10 +39,10 @@ export default function TextEditor(props) {
   // although there should be another approach? maybe a button a user clicks on the front end to deactivate connected mode? 
   // Remove from current list on exit TODO
   window.addEventListener('beforeunload', async function (e) {
-    for(let i = 0; i < connectedPeers.length; i++){ 
-      connectedPeers[i].destroy(); 
+    for (let i = 0; i < connectedPeers.length; i++) {
+      connectedPeers[i].destroy();
     }
-    await blankspace.removeFromActive(documentId, myPrincipal); 
+    await blankspace.removeFromActive(documentId, myPrincipal);
   });
 
   //Get URL params e.g. docID
@@ -49,20 +51,49 @@ export default function TextEditor(props) {
   const startuptext = "Welcome to blankspace...";
   // Pulling in user id from URL as a hash '#NAME'
 
-  useEffect(() => {       
-		//this will called when component is about to unmount  	
-    return () => { 
-  	   //clean up code  
-       async function remove() {
-        for(let i = 0; i < connectedPeers.length; i++){ 
-          connectedPeers[i].destroy(); 
+  useEffect(() => {
+    //this will called when component is about to unmount  	
+    return () => {
+      //clean up code  
+      async function remove() {
+        for (let i = 0; i < connectedPeers.length; i++) {
+          connectedPeers[i].destroy();
         }
         await blankspace.removeFromActive(documentId, myPrincipal);
-       }
-       remove();
-       
- 	}  
- }, []);  
+      }
+      remove();
+
+    }
+  }, []);
+
+  useEffect(() => {
+    if (props.exportD) {
+      async function exportDoc() {
+        const delt = quill.getContents(); // gets the Quill delta
+        const pdfAsBlob = await pdfExporter.generatePdf(delt); // converts to PDF
+        var docn = props.docName + '.pdf';
+        saveAs(pdfAsBlob, docn); // downloads from the browser
+      }
+      exportDoc();
+    }
+  }, [props.exportD]);
+
+
+
+  useEffect(() => {
+    //this will called when component is about to unmount  	
+    return () => {
+      //clean up code  
+      async function remove() {
+        for (let i = 0; i < connectedPeers.length; i++) {
+          connectedPeers[i].destroy();
+        }
+        await blankspace.removeFromActive(documentId, myPrincipal);
+      }
+      remove();
+
+    }
+  }, []);
 
   // Sets up the wrapper (a div around the quill) for quill front end element
   const wrapperRef = useCallback((wrapper) => {
@@ -72,9 +103,8 @@ export default function TextEditor(props) {
     const editor = document.createElement('div');
     wrapper.append(editor)
     const q = new Quill(editor, { theme: "snow", modules: { toolbar: TOOLBAR_OPTIONS } })
-    q.setContents({"ops": [{"insert": startuptext, "attributes": {"bold": true}}]})
+    q.setContents({ "ops": [{ "insert": startuptext, "attributes": { "bold": true } }] })
     setQuill(q);
-
   }, [])
 
   // class to wrap a simple peer object, maintains 
@@ -90,9 +120,9 @@ export default function TextEditor(props) {
         initiator: this.recipient.length > 0,
         trickle: false,
         config: {
-          iceServers : [ 
-            {urls : "stun:stun.blankspace.live:5349"}, 
-            {urls : "turn:turn.blankspace.live:5349", username : 'danhass', credential : 'ourblankspace'}
+          iceServers: [
+            { urls: "stun:stun.blankspace.live:5349" },
+            { urls: "turn:turn.blankspace.live:5349", username: 'danhass', credential: 'ourblankspace' }
           ]
         }
       });
@@ -126,7 +156,7 @@ export default function TextEditor(props) {
         index = connected.indexOf(this.recipient)
         setConnected(connected.splice(index, 1))
         let rec = this.recipient
-        setConnectedPeers(prevConnected => prevConnected.filter(function(e){ return e.recipient !== rec}))
+        setConnectedPeers(prevConnected => prevConnected.filter(function (e) { return e.recipient !== rec }))
       });
     }
 
@@ -171,10 +201,10 @@ export default function TextEditor(props) {
 
     // addNewDoc();
 
-    async function initialRun(){ 
+    async function initialRun() {
       var currentActive = await blankspace.getActiveUsers(documentId);
-      if (!currentActive.includes(myPrincipal)){ 
-        await blankspace.addToCurrentUsers(documentId, myPrincipal); 
+      if (!currentActive.includes(myPrincipal)) {
+        await blankspace.addToCurrentUsers(documentId, myPrincipal);
       }
     }
 
@@ -182,7 +212,7 @@ export default function TextEditor(props) {
       // get active users from motoko
       console.log("Props.docID", documentId)
       var peersActive = await blankspace.getActiveUsers(documentId);
-      var foundMe = false;  
+      var foundMe = false;
 
       console.log("ACTIVE PEERS", peersActive)
 
@@ -195,7 +225,7 @@ export default function TextEditor(props) {
             foundMe = true;
           }
 
-          console.log("OFFERED", offered)     
+          console.log("OFFERED", offered)
           console.log("CONNECTED", connected)
           console.log("MY PEERS", myPeers)
 
@@ -323,15 +353,15 @@ export default function TextEditor(props) {
     }
   }
 
-  useEffect(() => { 
-    const sendDoc = async () => { 
-      var head = await blankspace.getFirst(documentId);  
-      console.log('HEAD', head); 
+  useEffect(() => {
+    const sendDoc = async () => {
+      var head = await blankspace.getFirst(documentId);
+      console.log('HEAD', head);
       console.log('MY PRINCIPAL', myPrincipal)
-      var delta = quill.getContents(); 
-      if(head[0] === myPrincipal){ 
+      var delta = quill.getContents();
+      if (head[0] === myPrincipal) {
         console.log('SENDING DELTA TO CONNECTED PEERS', delta)
-        for (let i = 0; i < connectedPeers.length; i++){ 
+        for (let i = 0; i < connectedPeers.length; i++) {
           connectedPeers[i].getPeer().send(JSON.stringify(delta))
         }
       }
@@ -339,7 +369,7 @@ export default function TextEditor(props) {
     if (quillLoaded) {
       sendDoc();
     }
-  }, [connectedPeers, quillLoaded]); 
+  }, [connectedPeers, quillLoaded]);
 
   // when text is updated, send to all connected peers
   useEffect(() => {
@@ -370,14 +400,14 @@ export default function TextEditor(props) {
     var val = json.ops[0]
     console.log('JSON', json)
     console.log('json insert', json.ops[0])
-    if(json.ops[0].hasOwnProperty('insert')){
-      if(val.insert.length > 1){
+    if (json.ops[0].hasOwnProperty('insert')) {
+      if (val.insert.length > 1) {
         console.log('RECEIVING DELTA and UPDATING CONTENT', delta)
         quill.setContents(JSON.parse(delta))
-      } else { 
+      } else {
         quill.updateContents(JSON.parse(delta));
       }
-    } else { 
+    } else {
       quill.updateContents(JSON.parse(delta));
     }
 
