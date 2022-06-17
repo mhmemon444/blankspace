@@ -42,17 +42,15 @@ export default function TopBar(props) {
         <div className="topBar">
             <div>
                 <div style={{ display: 'flex' }}>
-                    <img onClick={props.showSidebar} src="sidebar-icon-17.jpg" style={{ height: "20px", marginRight: "50px", cursor: "pointer" }} />
+                    <img onClick={props.showSidebar} src="edit-document.png" style={{ height: "35px", marginRight: "30px", cursor: "pointer" }} />
                     <div style={{ display: 'flex' }}>
-                        <img src="edit-document.png" style={{height: "16px"}}/>
                         <input className="docNameInput" type="text" onChange={(e) => handleDocNameChange(e)} value={props.docName} onBlur={saveDocName} />
                     </div>
                 </div>
-                <div style={{ fontSize: '10px', marginLeft: '70px' }}>{documentId}</div>
             </div>
             <div className="shareBtnClass">
                 <div className="activeee">
-                    <span style={{fontSize: '18px'}}>Active Users:</span> <div style={{display: 'flex', fontSize: '12px'}}>{active.length == 0 ? "Connecting..." : active.map((a, i) => <Avatar a={a} i={i+1}/>)}</div>
+                    <span style={{fontSize: '15px'}}>Active Users:</span> <div style={{display: 'flex', fontSize: '10px'}}>{active.length == 0 ? "Connecting..." : active.map((a, i) => <Avatar a={a} i={i+1}/>)}</div>
                 </div>
                 <div >
                     <button className="shareBtn" onClick={shareBtnClickHandler}>Share</button>

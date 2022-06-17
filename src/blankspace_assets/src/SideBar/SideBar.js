@@ -23,7 +23,7 @@ export default function SideBar(props) {
                         {/* <div style={{width: '50px', height: '50px', backgroundColor: 'black'}}></div> */}
                     </Link>
                     <ul>
-                        {(props.docs).map(d => <div style={{ display: 'flex', marginBottom: '10px' }}><li className="doc-menu-item" onClick={d['doc_id'] == documentId ? null : props.switchDocHandler}>{d['doc_id'] == documentId ? <strong>{d['doc_name']}</strong> : <Link to={"/documents/" + d['doc_id']}>{d['doc_name']}</Link>}</li><img className="binimg" onClick={() => props.deleteDoc(d['doc_id'])} src="recycle-bin-line.png" /></div>)}
+                        {(props.docs).map(d => <div style={{ display: 'flex', marginBottom: '10px' }}><li className="doc-menu-item" onClick={d['doc_id'] == documentId ? null : props.switchDocHandler}>{d['doc_id'] == documentId ? <strong>{d['doc_name']}</strong> : <Link to={"/blankspace/" + d['doc_id']}>{d['doc_name']}</Link>}</li><img className="binimg" onClick={() => props.deleteDoc(d['doc_id'])} src="recycle-bin-line.png" /></div>)}
                     </ul>
                     {/* {docList} */}
 

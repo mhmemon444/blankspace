@@ -151,9 +151,9 @@ const App = () => {
             <Router>
                 <Switch>
                     <Route path="/" exact>
-                        <Redirect to={`/documents/${uuid()}`} />
+                        <Redirect to={`/blankspace/${uuid()}`} />
                     </Route>
-                    <Route path="/documents/:id" exact>
+                    <Route path="/blankspace/:id" exact>
                         {/* <TextEditor /> */}
                         <>
                             {openModal == true ? <ShareModal modalHandler={modalHandler} /> : null}

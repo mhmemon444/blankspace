@@ -16,7 +16,7 @@ export const idlFactory = ({ IDL }) => {
     'getDocContents' : IDL.Func([IDL.Text], [IDL.Text], ['query']),
     'getDocName' : IDL.Func([IDL.Text], [IDL.Text], ['query']),
     'getFirst' : IDL.Func([IDL.Text], [IDL.Opt(IDL.Text)], []),
-    'getUsersDocs' : IDL.Func([IDL.Text], [IDL.Vec(IDL.Text)], ['query']),
+    'getUsersDocs' : IDL.Func([IDL.Text], [IDL.Vec(IDL.Text)], []),
     'removeFromActive' : IDL.Func([IDL.Text, IDL.Text], [], []),
     'removeUserDoc' : IDL.Func([IDL.Text, IDL.Text], [], []),
     'updateCurrentPeers' : IDL.Func(

@@ -38,7 +38,7 @@ export default function TextEditor(props) {
   // Remove from current list on exit TODO
   window.addEventListener('beforeunload', async function (e) {
     for(let i = 0; i < connectedPeers.length; i++){ 
-      connectedPeers[i].destroy(); 
+      connectedPeers[i].close(); 
     }
     await blankspace.removeFromActive(documentId, myPrincipal); 
   });
@@ -55,7 +55,7 @@ export default function TextEditor(props) {
   	   //clean up code  
        async function remove() {
         for(let i = 0; i < connectedPeers.length; i++){ 
-          connectedPeers[i].destroy(); 
+          connectedPeers[i].close(); 
         }
         await blankspace.removeFromActive(documentId, myPrincipal);
        }
@@ -117,6 +117,16 @@ export default function TextEditor(props) {
         console.log('delta: ' + delta)
         setDelta(delta)
       })
+
+      this.peer.on("close", () => { 
+        console.log('CLOSING PEER')
+        var index = offered.indexOf(this.recipient)
+        setOffered(offered.splice(index, 1))
+        index = connected.indexOf(this.recipient)
+        setConnected(connected.splice(index, 1))
+        let rec = this.recipient
+        setConnectedPeers(prevConnected => prevConnected.filter(function(e){ return e.recipient !== rec}))
+      });
 
       this.peer.on("error", (err) => {
         console.log(err)

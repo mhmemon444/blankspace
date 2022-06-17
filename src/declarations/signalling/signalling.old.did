@@ -1,0 +1,11 @@
+type ConnectionDetails = 
+ record {
+   initiator: text;
+   recipient: text;
+   sdp: text;
+   typeof: text;
+ };
+service : {
+  addConnectionRequest: (text, text, text, text) -> ();
+  getConnectionRequest: (text) -> (opt ConnectionDetails);
+}
