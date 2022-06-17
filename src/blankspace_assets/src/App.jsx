@@ -35,9 +35,9 @@ const App = () => {
             }
             setUserDocs(intermDocsArr);
         }
-        getDocs();
-        // const getDocsInterval = setInterval(getDocs, 5000);
-        // return () => clearInterval(getDocsInterval);
+        // getDocs();
+        const getDocsInterval = setInterval(getDocs, 5000);
+        return () => clearInterval(getDocsInterval);
         // getDocs();
     }, []);
 
@@ -84,6 +84,18 @@ const App = () => {
     const switchDocHandler = () => {
         setSwitchDoc(true);
     }
+
+    // const updateDocName = (id, docname) => {
+    //     var updateDocs = [...userDocs];
+    //     for (var i = 0 ; i < updateDocs.length ; i++) {
+    //         var d = updateDocs[i];
+    //         if (d['doc_id'] == id) {
+    //             d['doc_name'] = docname
+    //             break;
+    //         }
+    //     }
+    //     setUserDocs([...updateDocs]);
+    // }
 
     React.useEffect(() => {
         if (switchDoc) {
