@@ -213,6 +213,15 @@ export default function TextEditor(props) {
     return () => clearInterval(intervalTwo);
   }, [])
 
+  useEffect(() => {
+    if (quill == null || quillLoaded == false) return;
+    async function saveDocInterval() {
+      await blankspace.updateDocContents(documentId, JSON.stringify(quill.getContents()))
+    }
+    const intervalSave = setInterval(saveDocInterval, 3000);
+    return () => clearInterval(intervalSave);
+  }, [quill, quillLoaded])
+
 
 
   //if there is no response from an offer, destroy the peer, take back the offer and resend
@@ -355,9 +364,10 @@ export default function TextEditor(props) {
   useEffect(() => {
     if (quillLoaded) {
       const retrieveDocContent = async () => {
-        const docContent = await blankspace.getDocContents(documentId);
+        var docCon = await blankspace.getDocContents(documentId);
+        var docContent = JSON.parse(docCon)
         // console.log("docContent: ", docContent);
-        if (docContent == "null") { //new document
+        if (docCon == "null") { //new document
           console.log("new doc");
           props.addDoc(documentId);
           const authClient = await AuthClient.create();
@@ -370,7 +380,7 @@ export default function TextEditor(props) {
             });
           await authenticatedCanister.updateUsersDocs(myPrincipal, documentId);
         } else {
-          quill.setText(docContent)
+          quill.setContents(docContent)
         }
         // quill.setText("Hello");
       }
