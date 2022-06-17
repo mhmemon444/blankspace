@@ -48,7 +48,7 @@ export default function TextEditor(props) {
   //Get URL params e.g. docID
   const { id: documentId } = useParams();
 
-  const startuptext = "Welcome to blankspace...";
+  const startuptext = "Welcome to your blank space..."; 
   // Pulling in user id from URL as a hash '#NAME'
 
   useEffect(() => {       
