@@ -12,6 +12,8 @@
 
 .activeee {
     margin-right: 50px;
+    display: flex;
+    justify-content: center;
 }
 
 .shareBtn {
@@ -32,6 +34,27 @@
 
 .shareBtn:hover {
     background: #393939;
+    cursor: pointer;
+}
+
+.exportBtn {
+    border: 1px solid transparent!important;
+    border-radius: 4px;
+    box-shadow: none;
+    box-sizing: border-box;
+    font-weight: 500;
+    font-size: 14px;
+    height: 36px;
+    letter-spacing: 0.25px;
+    line-height: 16px;
+    padding: 9px 24px 11px 24px;
+    background: #e81a1a;
+    color: #fff;
+    padding: 9px 16px 10px 12px;
+}
+
+.exportBtn:hover {
+    background: #fa4141;
     cursor: pointer;
 }
 
