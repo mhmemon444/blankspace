@@ -46,9 +46,9 @@ const App = () => {
             }
             setUserDocs(intermDocsArr);
         }
-        // getDocs();
-        const getDocsInterval = setInterval(getDocs, 5000);
-        return () => clearInterval(getDocsInterval);
+        getDocs();
+        // const getDocsInterval = setInterval(getDocs, 5000);
+        // return () => clearInterval(getDocsInterval);
         // getDocs();
     }, []);
 
@@ -170,7 +170,7 @@ const App = () => {
                 <Route path="/documents/:id" exact>
                     {/* <TextEditor /> */}
                     <>
-                        {openModal == true ? <ShareModal modalHandler={modalHandler} /> : null}
+                        {openModal == true ? <ShareModal modalHandler={modalHandler} docName={docName} /> : null}
                         <div>
                             {!switchDoc ? <TopBar exportDoc={exportDocHandler} showSidebar={showSidebar} docName={docName} setDocName={setDocName} docID={docID} modalHandler={modalHandler} /> : null}
                             {sidebar ? <SideBar deleteDoc={deleteDoc} switchDocHandler={switchDocHandler} docs={userDocs} /> : null}
