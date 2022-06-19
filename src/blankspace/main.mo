@@ -156,7 +156,7 @@ actor Blankspace {
 
   public query func getDocName(docID: Text) : async Text {
     var docname : Text = switch(docNames.get(docID)){
-      case null "Untitled"; 
+      case null "untitled"; 
       case (?result) result; 
     };
     return docname; 

@@ -12,7 +12,7 @@ import myPrincipal from "./constants/userid";
 import "./index.css";
 
 const App = () => {
-    const [docName, setDocName] = React.useState("Untitled");
+    const [docName, setDocName] = React.useState("untitled");
     const [docID, setDocID] = React.useState("");
     const [openModal, setOpenModal] = React.useState(false);
     const [sidebar, setSidebar] = React.useState(false);
@@ -77,7 +77,7 @@ const App = () => {
     async function addDoc(id) {
         const newDoc = {
             'doc_id': id,
-            'doc_name': 'Untitled'
+            'doc_name': ''
         }
 
         for (var i = 0; i < userDocs.length; i++) {
@@ -165,9 +165,9 @@ const App = () => {
         <Router>
             <Switch>
                 <Route path="/" exact>
-                    <Redirect to={`/documents/${uuid()}`} />
+                    <Redirect to={`/blankspace/${uuid()}`} />
                 </Route>
-                <Route path="/documents/:id" exact>
+                <Route path="/blankspace/:id" exact>
                     {/* <TextEditor /> */}
                     <>
                         {openModal == true ? <ShareModal modalHandler={modalHandler} docName={docName} /> : null}
