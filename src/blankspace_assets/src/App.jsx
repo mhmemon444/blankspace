@@ -104,17 +104,17 @@ const App = () => {
         setSwitchDoc(true);
     }
 
-    // const updateDocName = (id, docname) => {
-    //     var updateDocs = [...userDocs];
-    //     for (var i = 0 ; i < updateDocs.length ; i++) {
-    //         var d = updateDocs[i];
-    //         if (d['doc_id'] == id) {
-    //             d['doc_name'] = docname
-    //             break;
-    //         }
-    //     }
-    //     setUserDocs([...updateDocs]);
-    // }
+    const updateDocName = (id, docname) => {
+        var updateDocs = [...userDocs];
+        for (var i = 0 ; i < updateDocs.length ; i++) {
+            var d = updateDocs[i];
+            if (d['doc_id'] == id) {
+                d['doc_name'] = docname
+                break;
+            }
+        }
+        setUserDocs([...updateDocs]);
+    }
 
     React.useEffect(() => {
         if (switchDoc) {
@@ -172,7 +172,7 @@ const App = () => {
                     <>
                         {openModal == true ? <ShareModal modalHandler={modalHandler} docName={docName} /> : null}
                         <div>
-                            {!switchDoc ? <TopBar exportDoc={exportDocHandler} showSidebar={showSidebar} docName={docName} setDocName={setDocName} docID={docID} modalHandler={modalHandler} /> : null}
+                            {!switchDoc ? <TopBar updateDocName={updateDocName} exportDoc={exportDocHandler} showSidebar={showSidebar} docName={docName} setDocName={setDocName} docID={docID} modalHandler={modalHandler} /> : null}
                             {sidebar ? <SideBar deleteDoc={deleteDoc} switchDocHandler={switchDocHandler} docs={userDocs} /> : null}
                             {!switchDoc ? <TextEditor exportD={exportD} docName={docName} docID={docID} setDocID={setDocID} addDoc={addDoc} /> : null}
                         </div>
