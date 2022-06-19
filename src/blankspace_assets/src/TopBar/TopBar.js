@@ -25,12 +25,12 @@ export default function TopBar(props) {
     }, [])
 
     const handleDocNameChange = (event) => {
-        props.setDocName(event.target.value)
+        props.setDocName(event.target.value);
     }
 
     const saveDocName = async () => {
         console.log("onBlur save hit")
-        // props.updateDocName(documentId, props.docName);
+        props.updateDocName(documentId, props.docName);
         await blankspace.updateDocName(documentId, props.docName);
     }
 
