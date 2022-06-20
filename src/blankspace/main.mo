@@ -52,7 +52,6 @@ actor Blankspace {
     return List.last(activeUsers);
   };
 
-  //this can be changed to shared(msg)
   public func addToCurrentUsers(documentID : Text, principal : Text) : async() { 
     var currentDoc : List.List<Text> = switch(activeDocsPrincipalHashmap.get(documentID)){
         case null List.nil<Text>(); 
@@ -63,9 +62,6 @@ actor Blankspace {
     activeDocsPrincipalHashmap.put(documentID, currentDoc); 
   };
 
-  // NOTE: this can be changed to shared(msg) so we no longer require princicpal 
-  // NOTE: it should be ok to use ConnectionDetails here (despite it being duplicated code) 
-  // as it is a necessary part of the implementation for signalling. 
   public func getConnectionRequest(principal : Text) : async ?ConnectionDetails { 
     let connectionRequest = await Signalling.getConnectionRequest(principal); 
   };
@@ -85,11 +81,6 @@ actor Blankspace {
     activeDocsPrincipalHashmap.put(documentID, currentDoc); 
   };
 
-  // //this can be changed to shared(msg)
-  // public func removeFromCurrent(documentID : Text, principal : Text) : async () { 
-  //   await Signalling.removeActiveUser(principal);
-  // };
-
 
 
 
@@ -99,9 +90,7 @@ actor Blankspace {
   //---------Keeping track of which documents belong to which users
   stable var usersDocsEntries : [(Text, List.List<Text>)] = [];
   var usersDocs = HashMap.HashMap<Text, List.List<Text>>(1, Text.equal, Text.hash);
-  public shared(msg) func updateUsersDocs(principal: Text, docID: Text) : async () {
-    Debug.print(debug_show(principal));
-    Debug.print(debug_show(docID));
+  public shared(msg) func updateUsersDocs(docID: Text) : async () {
     var prin : Principal = msg.caller;
     var principalText : Text = Principal.toText(prin);
     var docsList : List.List<Text> = switch(usersDocs.get(principalText)){
@@ -109,7 +98,7 @@ actor Blankspace {
       case (?result) result; 
     };
 
-    //TODO: if list already contains docID, do not add docID to list again
+    //if list already contains docID, do not add docID to list again
     var arr = List.toArray<Text>(docsList);
     for (x in arr.vals()) {
       if (x == docID) {
@@ -122,7 +111,7 @@ actor Blankspace {
     usersDocs.put(principalText, docsList);
   };
 
-  public shared(msg) func getUsersDocs(principal: Text) : async [Text] {
+  public shared(msg) func getUsersDocs() : async [Text] {
     var prin : Principal = msg.caller;
     var principalText : Text = Principal.toText(prin);
     var docsList : List.List<Text> = switch(usersDocs.get(principalText)){
@@ -132,7 +121,7 @@ actor Blankspace {
     return ( List.toArray<Text>(docsList) ); 
   };
 
-  public shared(msg) func removeUserDoc(principal: Text, docID: Text) : async () {
+  public shared(msg) func removeUserDoc(docID: Text) : async () {
     var prin : Principal = msg.caller;
     var principalText : Text = Principal.toText(prin);
     var docsList : List.List<Text> = switch(usersDocs.get(principalText)){
@@ -170,8 +159,6 @@ actor Blankspace {
   stable var docContentsEntries : [(Text, Text)] = [];
   var docContents = HashMap.HashMap<Text, Text>(1, Text.equal, Text.hash);
   public func updateDocContents(docID: Text, contents: Text) : async () {
-    // Debug.print(debug_show(docID));
-    // Debug.print(debug_show(contents));
     docContents.put(docID, contents);
   };
 
@@ -181,14 +168,11 @@ actor Blankspace {
       case (?result) result; 
     };
     return contents; 
-    //commentssssssssssss
   };
 
   //Hashmap of docIDs to access settings
   var docAccess = HashMap.HashMap<Text, Text>(1, Text.equal, Text.hash);
   public func updateDocAccess(docID: Text, access: Text) : async () {
-    Debug.print(debug_show(docID));
-    Debug.print(debug_show(access));
     docAccess.put(docID, access);
   };
 
@@ -198,7 +182,6 @@ actor Blankspace {
       case (?result) result; 
     };
     return contents; 
-    //commentsssssssssssssssssssssssssssssssssssss
   };
 
 

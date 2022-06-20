@@ -33,7 +33,7 @@ const App = () => {
                     identity
                 },
             });
-            const docs = await authenticatedCanister.getUsersDocs(myPrincipal);
+            const docs = await authenticatedCanister.getUsersDocs();
             console.log('docssssssssssFromPRincipallllllllll: ', docs);
             const intermDocsArr = [];
             for (var i = 0; i < docs.length; i++) {
@@ -75,7 +75,7 @@ const App = () => {
                 identity
             },
         });
-        await authenticatedCanister.removeUserDoc(myPrincipal, id);
+        await authenticatedCanister.removeUserDoc(id);
     }
 
     async function addDoc(id) {

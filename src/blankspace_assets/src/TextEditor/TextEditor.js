@@ -440,7 +440,7 @@ export default function TextEditor(props) {
                     identity
                 },
             });
-          await authenticatedCanister.updateUsersDocs(myPrincipal, documentId);
+          await authenticatedCanister.updateUsersDocs(documentId);
         } else {
           quill.setContents(docContent)
         }
