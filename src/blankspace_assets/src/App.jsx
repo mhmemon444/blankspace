@@ -77,7 +77,7 @@ const App = () => {
     async function addDoc(id) {
         const newDoc = {
             'doc_id': id,
-            'doc_name': ''
+            'doc_name': 'untitled'
         }
 
         for (var i = 0; i < userDocs.length; i++) {
