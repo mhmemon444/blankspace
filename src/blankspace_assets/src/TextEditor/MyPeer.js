@@ -23,7 +23,6 @@ import { blankspace } from "../../../declarations/blankspace/index";
     });
 
     this.peer.on('data', delta => {
-      console.log('delta: ' + delta)
       setDelta(delta)
     })
 

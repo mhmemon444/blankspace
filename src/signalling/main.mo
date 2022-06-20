@@ -14,7 +14,6 @@ actor Signalling {
         currentActivePeers.getConnectionRequest(principal);
     };
     
-    // NOTE: this can be changed to use shared(msg) when we move to principals. This will replace initiator
     public func addConnectionRequest(initiator : Text, recipient : Text, typeof : Text, sdp : Text) : async() {
         currentActivePeers.addConnectionRequest(initiator, recipient, typeof, sdp); 
     };

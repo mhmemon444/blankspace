@@ -33,14 +33,11 @@ actor Blankspace {
     await Signalling.addConnectionRequest(initiator, recipient, typeof, sdp); 
   };
 
-  // NOTE: this should be handled here without calling to signalling, signalling should only know about specific users and their connections 
-  // not the logic behind WHO is on a specific doc and is active for a particular user 
   public func getActiveUsers(documentID : Text) : async [Text]{ 
     var activeUsers : List.List<Text> = switch(activeDocsPrincipalHashmap.get(documentID)){
         case null List.nil<Text>(); 
         case (?result) result;
     }; 
-    Debug.print(debug_show(documentID));
     return ( List.toArray<Text>(activeUsers) ); 
   };
 
@@ -68,9 +65,6 @@ actor Blankspace {
   
 
   public func removeFromActive(documentID : Text, principal : Text ) : async () {
-    Debug.print(debug_show(principal));
-    Debug.print(debug_show("DELETING FROM ACTIVE"));
-
     var currentDoc : List.List<Text> = switch(activeDocsPrincipalHashmap.get(documentID)){
         case null List.nil<Text>(); 
         case (?result) result;
@@ -140,8 +134,6 @@ actor Blankspace {
   stable var docNamesEntries : [(Text, Text)] = [];
   var docNames = HashMap.HashMap<Text, Text>(1, Text.equal, Text.hash);
   public func updateDocName(docID: Text, docName: Text) : async () {
-    Debug.print(debug_show(docName));
-    Debug.print(debug_show(docID));
     docNames.put(docID, docName);
   };
 

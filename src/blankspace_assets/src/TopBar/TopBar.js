@@ -29,7 +29,6 @@ export default function TopBar(props) {
     }
 
     const saveDocName = async () => {
-        console.log("onBlur save hit")
         props.updateDocName(documentId, props.docName);
         await blankspace.updateDocName(documentId, props.docName);
     }
@@ -38,9 +37,7 @@ export default function TopBar(props) {
         props.modalHandler();
     }
 
-    console.log(active);
     var difference = active.length - 7;
-    console.log("DIFF: ", difference);
     var diffString = '+' + difference;
 
     return (

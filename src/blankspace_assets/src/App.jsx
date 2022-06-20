@@ -24,7 +24,6 @@ const App = () => {
 
     React.useEffect(() => {
         const getDocs = async () => {
-            console.log('myPrincipal: ', myPrincipal);
             const authClient = await AuthClient.create();
             const identity = await authClient.getIdentity();
 
@@ -34,32 +33,20 @@ const App = () => {
                 },
             });
             const docs = await authenticatedCanister.getUsersDocs();
-            console.log('docssssssssssFromPRincipallllllllll: ', docs);
             const intermDocsArr = [];
             for (var i = 0; i < docs.length; i++) {
                 const dnam = await blankspace.getDocName(docs[i]);
-                console.log('dnam: ', dnam);
                 intermDocsArr.push({
                     'doc_id': docs[i],
                     'doc_name': dnam
                 })
-                console.log('intermDocsArr: ', intermDocsArr);
             }
             setUserDocs(intermDocsArr);
             setDocsLoaded(true);
         }
-        console.log("getdocs");
         setTimeout(getDocs, 7000);
         
-        // const getDocsInterval = setInterval(getDocs, 5000);
-        // return () => clearInterval(getDocsInterval);
-        // getDocs();
     }, []);
-
-
-    React.useEffect(() => {
-        console.log("userDocs : ", userDocs);
-    }, [userDocs])
 
     async function deleteDoc(id) {
         setUserDocs(prevDocs => {
@@ -101,10 +88,6 @@ const App = () => {
         await blankspace.updateDocAccess(id, selectedAccess);
     }
 
-    React.useEffect(() => {
-        console.log("openModaL : ", openModal);
-    }, [openModal])
-
     const switchDocHandler = () => {
         setSwitchDoc(true);
     }
@@ -143,28 +126,6 @@ const App = () => {
 
 
 
-
-    const sidebarElement = (
-        <>
-            {/* <Router>   
-                <SideBar docs={userDocs} />
-            </Router> */}
-        </>
-    )
-
-
-
-    // return (
-    //         <>
-    //         { openModal == true ? <ShareModal modalHandler={modalHandler} /> : null
-    // }
-    // <div>
-    //     <TopBar showSidebar={showSidebar} docName={docName} setDocName={setDocName} docID={docID} modalHandler={modalHandler} />
-    //     {sidebar ? sidebarElement : null}
-    //     <TextEditor docID={docID} setDocID={setDocID} />
-    // </div>
-    //         </>
-    // );
     return (
     <>
         <Router>
@@ -173,7 +134,6 @@ const App = () => {
                     <Redirect to={`/blankspace/${uuid()}`} />
                 </Route>
                 <Route path="/blankspace/:id" exact>
-                    {/* <TextEditor /> */}
                     <>
                         {openModal == true ? <ShareModal selectedAccess={selectedAccess} setAccess={setAccess} modalHandler={modalHandler} docName={docName} /> : null}
                         <div>

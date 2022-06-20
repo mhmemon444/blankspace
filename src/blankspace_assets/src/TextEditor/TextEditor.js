@@ -23,8 +23,6 @@ const TOOLBAR_OPTIONS = [
   ["image", "blockquote", "code-block"],
   ["clean"],
 ]
-// const myPrincipal = (Math.random() + 1).toString(36).substring(7);
-// const myPrincipal = "#hassan";
 
 export default function TextEditor(props) {
   const [quill, setQuill] = useState()
@@ -32,12 +30,8 @@ export default function TextEditor(props) {
   const [connected, setConnected] = useState([]);
   const [offered, setOffered] = useState([]);
   const [connectedPeers, setConnectedPeers] = useState([]);
-  const [contents, setContents] = useState("");
   const [quillLoaded, setQuillLoaded] = useState(false);
 
-  // NOTE: this was my attempt at removing users from an active user, here when a user xs out they get disconnected 
-  // although there should be another approach? maybe a button a user clicks on the front end to deactivate connected mode? 
-  // Remove from current list on exit TODO
   window.addEventListener('beforeunload', async function (e) {
     for(let i = 0; i < connectedPeers.length; i++){ 
       connectedPeers[i].close(); 
@@ -54,7 +48,6 @@ export default function TextEditor(props) {
   useEffect(() => {       
 		//this will called when component is about to unmount  	
     return () => { 
-  	   //clean up code  
        async function remove() {
         for(let i = 0; i < connectedPeers.length; i++){ 
           connectedPeers[i].close(); 
@@ -129,14 +122,12 @@ export default function TextEditor(props) {
 
       this.peer.on("signal", async (data) => {
         if (this.recipient.length > 0) {
-          console.log('SENDING to', this.recipient, data)
           await blankspace.updateCurrentPeers(this.myPrincipal, this.recipient, data.type, data.sdp);
         }
       });
 
       this.peer.on("connect", () => {
         // see if there is a way to remove connected list (only maintain connectedPeers and myPeers)
-        console.log("CONNECTED TO", this.recipient)
         setConnected(connected.push(this.recipient))
         setConnectedPeers((prevConnected) => [...prevConnected, this])
         const index = offered.indexOf(recipient)
@@ -144,12 +135,10 @@ export default function TextEditor(props) {
       });
 
       this.peer.on('data', delta => {
-        console.log('delta: ' + delta)
         setDelta(delta)
       })
 
       this.peer.on("close", () => { 
-        console.log('CLOSING PEER')
         var index = offered.indexOf(this.recipient)
         setOffered(offered.splice(index, 1))
         index = connected.indexOf(this.recipient)
@@ -159,8 +148,6 @@ export default function TextEditor(props) {
       });
 
       this.peer.on("error", (err) => {
-        console.log(err)
-        console.log("Error for Peer", this.recipient)
         var index = offered.indexOf(this.recipient)
         setOffered(offered.splice(index, 1))
         index = connected.indexOf(this.recipient)
@@ -179,38 +166,9 @@ export default function TextEditor(props) {
     }
   }
 
-  //TODO: Loop through connectedpeers to check if they're still connected -- double check that when a peer breaks( for whatever reason ) it is getting correctly removed from connectedPeers
-
   var myPeers = []
 
-
-
   useEffect(() => {
-    //check if new doc (empty doc ID) -> later expand to react router url params
-    // const addNewDoc = async () => {
-    //   if (props.docID == "") {
-    //     const uniqueID = uuid();
-    //     props.setDocID(uniqueID);
-    //     await blankspace.updateUsersDocs(myPrincipal, uniqueID);
-    //   }
-    // }
-    // const retrieveDocContent = async () => {
-    //   // const docContent = await blankspace.getDocContents(documentId);
-    //   // console.log("docContent: ", docContent);
-    //   // if (docContent == []) { //new document
-    //   //   await blankspace.updateUsersDocs(myPrincipal, documentId);
-    //   // } else {
-    //   //   quill.updateContents(docContent[0])
-    //   // }
-    // }
-
-    // retrieveDocContent();
-
-    // quill.updateContents(docContent[0])
-
-
-    // addNewDoc();
-
     async function initialRun() {
       var currentActive = await blankspace.getActiveUsers(documentId);
       if (!currentActive.includes(myPrincipal)) {
@@ -220,11 +178,8 @@ export default function TextEditor(props) {
 
     async function activeUserUpdate() {
       // get active users from motoko
-      console.log("Props.docID", documentId)
       var peersActive = await blankspace.getActiveUsers(documentId);
       var foundMe = false;
-
-      console.log("ACTIVE PEERS", peersActive)
 
       // if there are peers which have also connected 
       if (peersActive.length != 0) {
@@ -234,10 +189,6 @@ export default function TextEditor(props) {
           if (myPrincipal == peersActive[i]) {
             foundMe = true;
           }
-
-          console.log("OFFERED", offered)
-          console.log("CONNECTED", connected)
-          console.log("MY PEERS", myPeers)
 
           if (myPrincipal != peersActive[i] && foundMe == true) {
             if (connected.indexOf(peersActive[i]) === -1 && offered.indexOf(peersActive[i]) === -1) {
@@ -263,10 +214,8 @@ export default function TextEditor(props) {
       if (request.length != 0) {
         //if the request is an offer, prepare to send an answer, otherwise if it is an answer, try to connect 
         if (request[0].typeof == 'offer') {
-          console.log('HANDLING OFFER', request)
           handleOffer(request)
         } else {
-          console.log('HANDLING ANSWER', request)
           handleAnswer(request)
         }
       }
@@ -312,7 +261,6 @@ export default function TextEditor(props) {
       }
     }
     if (offered.indexOf(recipient) === -1 && createdPeer === false) {
-      console.log('RECIPIENT BEING OFFERED', recipient)
       const p = new MyPeer(recipient, myPrincipal)
       myPeers.push(p)
       // create a 30 second wait to delete offer if no answer is recieved 
@@ -342,7 +290,6 @@ export default function TextEditor(props) {
       }
     }
     if (createdPeer) {
-      console.log('destroyed')
       var killPeer = myPeers.filter(function (e) { return e.recipient === recipient })
       killPeer[0].getPeer().destroy()
       myPeers = myPeers.filter(function (e) { return e.recipient !== recipient })
@@ -353,9 +300,7 @@ export default function TextEditor(props) {
   function handleAnswer(request) {
     // if its an answer, signal back that you have received the answer and connect (connection happens through the signal)
     var recipient = request[0].initiator;
-    console.log('ANSWER FROM RECIPIENT', recipient)
     var jsonData = { "type": request[0].typeof, "sdp": request[0].sdp }
-    console.log('MYPEERS', myPeers)
     for (let i = 0; i < myPeers.length; i++) {
       if (recipient == myPeers[i].recipient) {
         myPeers[i].getPeer().signal(jsonData)
@@ -366,11 +311,8 @@ export default function TextEditor(props) {
   useEffect(() => {
     const sendDoc = async () => {
       var head = await blankspace.getFirst(documentId);
-      console.log('HEAD', head);
-      console.log('MY PRINCIPAL', myPrincipal)
       var delta = quill.getContents();
       if (head[0] === myPrincipal) {
-        console.log('SENDING DELTA TO CONNECTED PEERS', delta)
         for (let i = 0; i < connectedPeers.length; i++) {
           connectedPeers[i].getPeer().send(JSON.stringify(delta))
         }
@@ -390,12 +332,9 @@ export default function TextEditor(props) {
         return;
       }
       // //send delta to peer
-      console.log("Connected PEERS", connectedPeers)
       for (let i = 0; i < connectedPeers.length; i++) {
         connectedPeers[i].getPeer().send(JSON.stringify(delta))
       }
-      console.log("deltaaaa ", JSON.stringify(delta));
-
     }
 
     quill.on('text-change', handler)
@@ -408,11 +347,8 @@ export default function TextEditor(props) {
     if (quill == null || delta == null) return;
     var json = JSON.parse(delta)
     var val = json.ops[0]
-    console.log('JSON', json)
-    console.log('json insert', json.ops[0])
     if (json.ops[0].hasOwnProperty('insert')) {
       if (val.insert.length > 1) {
-        console.log('RECEIVING DELTA and UPDATING CONTENT', delta)
         quill.setContents(JSON.parse(delta))
       } else {
         quill.updateContents(JSON.parse(delta));
@@ -428,9 +364,7 @@ export default function TextEditor(props) {
       const retrieveDocContent = async () => {
         var docCon = await blankspace.getDocContents(documentId);
         var docContent = JSON.parse(docCon)
-        // console.log("docContent: ", docContent);
         if (docCon == "null") { //new document
-          console.log("new doc");
           props.addDoc(documentId);
           const authClient = await AuthClient.create();
             const identity = await authClient.getIdentity();
