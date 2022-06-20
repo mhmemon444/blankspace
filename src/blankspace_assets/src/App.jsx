@@ -44,9 +44,11 @@ const App = () => {
                 })
                 console.log('intermDocsArr: ', intermDocsArr);
             }
-            setUserDocs(intermDocsArr);
+            let difference = userDocs.filter(x => !intermDocsArr.includes(x));
+            setUserDocs([...intermDocsArr, difference]);
         }
         getDocs();
+        
         // const getDocsInterval = setInterval(getDocs, 5000);
         // return () => clearInterval(getDocsInterval);
         // getDocs();
