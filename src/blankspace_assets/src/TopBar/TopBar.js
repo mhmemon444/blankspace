@@ -38,6 +38,11 @@ export default function TopBar(props) {
         props.modalHandler();
     }
 
+    console.log(active);
+    var difference = active.length - 7;
+    console.log("DIFF: ", difference);
+    var diffString = '+' + difference;
+
     return (
         <div className="topBar">
             <div>
@@ -50,7 +55,7 @@ export default function TopBar(props) {
             </div>
             <div className="shareBtnClass">
                 <div className="activeee">
-                    <span style={{fontSize: '15px', display: 'flex', alignItems: 'center', marginRight: '8px'}}>Active Users:</span> <div style={{display: 'flex', fontSize: '12px', alignItems: 'center'}}>{active.length == 0 ? "Connecting..." : active.map((a, i) => <Avatar a={a} i={i+1}/>)}</div>
+                    <span style={{fontSize: '15px', display: 'flex', alignItems: 'center', marginRight: '8px'}}>Active Users:</span> <div style={{display: 'flex', fontSize: '12px', alignItems: 'center'}}>{active.length == 0 ? "Connecting..." : active.map((a, i) => (i >= 7 ? null : <Avatar a={a} i={i+1}/>))} <span style={{marginLeft: '5px', fontSize: '16px'}}>{active.length > 7 ? diffString : null}</span></div>
                 </div>
                 <div >
                     <button className="shareBtn" onClick={shareBtnClickHandler}>Share</button>
