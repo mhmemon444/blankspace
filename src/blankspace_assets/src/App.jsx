@@ -44,17 +44,9 @@ const App = () => {
                 })
                 console.log('intermDocsArr: ', intermDocsArr);
             }
-            const newDoc = {
-                'doc_id': id,
-                'doc_name': 'untitled'
-            }
-            if (docs.length == 0) {
-                setUserDocs([...intermDocsArr, newDoc]);
-            } else {
-                setUserDocs([...intermDocsArr]);
-            }
-            
+            setUserDocs(intermDocsArr);
         }
+        console.log("getdocs");
         getDocs();
         
         // const getDocsInterval = setInterval(getDocs, 5000);
