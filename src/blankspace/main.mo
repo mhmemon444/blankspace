@@ -97,6 +97,7 @@ actor Blankspace {
 
   //Hashmap of users (note: currently text later expand to Principal type) to docs (array of docIDs)
   //---------Keeping track of which documents belong to which users
+  stable var usersDocsEntries : [(Text, List.List<Text>)] = [];
   var usersDocs = HashMap.HashMap<Text, List.List<Text>>(1, Text.equal, Text.hash);
   public shared(msg) func updateUsersDocs(principal: Text, docID: Text) : async () {
     Debug.print(debug_show(principal));
@@ -147,6 +148,7 @@ actor Blankspace {
 
 
   //Hashmap of docIDs to docNames
+  stable var docNamesEntries : [(Text, Text)] = [];
   var docNames = HashMap.HashMap<Text, Text>(1, Text.equal, Text.hash);
   public func updateDocName(docID: Text, docName: Text) : async () {
     Debug.print(debug_show(docName));
@@ -165,6 +167,7 @@ actor Blankspace {
 
 
   //Hashmap of docIDs to doc contents
+  stable var docContentsEntries : [(Text, Text)] = [];
   var docContents = HashMap.HashMap<Text, Text>(1, Text.equal, Text.hash);
   public func updateDocContents(docID: Text, contents: Text) : async () {
     // Debug.print(debug_show(docID));
@@ -195,7 +198,20 @@ actor Blankspace {
       case (?result) result; 
     };
     return contents; 
-    //commentssssssssssss
+    //commentsssssssssssssssssssssssssssssssssssss
+  };
+
+
+  system func preupgrade() {
+    docContentsEntries := Iter.toArray(docContents.entries());
+    docNamesEntries := Iter.toArray(docNames.entries());
+    usersDocsEntries := Iter.toArray(usersDocs.entries());
+  };
+
+  system func postupgrade() {
+    docContents := HashMap.fromIter<Text, Text>(docContentsEntries.vals(), 1, Text.equal, Text.hash);
+    docNames := HashMap.fromIter<Text, Text>(docNamesEntries.vals(), 1, Text.equal, Text.hash);
+    usersDocs := HashMap.fromIter<Text, List.List<Text>>(usersDocsEntries.vals(), 1, Text.equal, Text.hash);
   };
 
 }
