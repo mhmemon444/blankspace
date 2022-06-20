@@ -20,6 +20,7 @@ const App = () => {
     const [userDocs, setUserDocs] = React.useState([]);
     const [exportD, setExportD] = React.useState(false);
     const [selectedAccess, setAccess] = React.useState('Anyone');
+    const [docsLoaded, setDocsLoaded] = React.useState(false);
 
     React.useEffect(() => {
         const getDocs = async () => {
@@ -45,6 +46,7 @@ const App = () => {
                 console.log('intermDocsArr: ', intermDocsArr);
             }
             setUserDocs(intermDocsArr);
+            setDocsLoaded(true);
         }
         console.log("getdocs");
         setTimeout(getDocs, 7000);
@@ -176,7 +178,7 @@ const App = () => {
                         {openModal == true ? <ShareModal selectedAccess={selectedAccess} setAccess={setAccess} modalHandler={modalHandler} docName={docName} /> : null}
                         <div>
                             {!switchDoc ? <TopBar updateDocName={updateDocName} exportDoc={exportDocHandler} showSidebar={showSidebar} docName={docName} setDocName={setDocName} docID={docID} modalHandler={modalHandler} /> : null}
-                            {sidebar ? <SideBar deleteDoc={deleteDoc} switchDocHandler={switchDocHandler} docs={userDocs} /> : null}
+                            {sidebar ? <SideBar docsLoaded={docsLoaded} deleteDoc={deleteDoc} switchDocHandler={switchDocHandler} docs={userDocs} /> : null}
                             {!switchDoc ? <TextEditor exportD={exportD} docName={docName} docID={docID} setDocID={setDocID} addDoc={addDoc} /> : null}
                         </div>
                     </>
