@@ -44,8 +44,16 @@ const App = () => {
                 })
                 console.log('intermDocsArr: ', intermDocsArr);
             }
-            let difference = userDocs.filter(x => !intermDocsArr.includes(x));
-            setUserDocs([...intermDocsArr, difference]);
+            const newDoc = {
+                'doc_id': id,
+                'doc_name': 'untitled'
+            }
+            if (docs.length == 0) {
+                setUserDocs([...intermDocsArr, newDoc]);
+            } else {
+                setUserDocs([...intermDocsArr]);
+            }
+            
         }
         getDocs();
         
