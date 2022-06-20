@@ -1,4 +1,4 @@
-# [blankspace](https://www.blankspace.live) 
+# [blank space](https://www.blankspace.live) 
 
 Bringing real time collaboration to life on the IC blockchain. 
 
