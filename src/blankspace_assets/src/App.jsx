@@ -47,7 +47,7 @@ const App = () => {
             setUserDocs(intermDocsArr);
         }
         console.log("getdocs");
-        getDocs();
+        setTimeout(getDocs, 7000);
         
         // const getDocsInterval = setInterval(getDocs, 5000);
         // return () => clearInterval(getDocsInterval);
