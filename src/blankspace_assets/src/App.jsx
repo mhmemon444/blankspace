@@ -19,7 +19,7 @@ const App = () => {
     const [switchDoc, setSwitchDoc] = React.useState(false);
     const [userDocs, setUserDocs] = React.useState([]);
     const [exportD, setExportD] = React.useState(false);
-    const [overallQuill, setOverallQuill] = React.useState();
+    const [selectedAccess, setAccess] = React.useState('Anyone');
 
     React.useEffect(() => {
         const getDocs = async () => {
@@ -92,8 +92,9 @@ const App = () => {
 
     const showSidebar = () => setSidebar(!sidebar)
 
-    const modalHandler = () => {
+    const modalHandler = async (id) => {
         setOpenModal(prevState => !prevState);
+        await blankspace.updateDocAccess(id, selectedAccess);
     }
 
     React.useEffect(() => {
@@ -170,7 +171,7 @@ const App = () => {
                 <Route path="/blankspace/:id" exact>
                     {/* <TextEditor /> */}
                     <>
-                        {openModal == true ? <ShareModal modalHandler={modalHandler} docName={docName} /> : null}
+                        {openModal == true ? <ShareModal selectedAccess={selectedAccess} setAccess={setAccess} modalHandler={modalHandler} docName={docName} /> : null}
                         <div>
                             {!switchDoc ? <TopBar updateDocName={updateDocName} exportDoc={exportDocHandler} showSidebar={showSidebar} docName={docName} setDocName={setDocName} docID={docID} modalHandler={modalHandler} /> : null}
                             {sidebar ? <SideBar deleteDoc={deleteDoc} switchDocHandler={switchDocHandler} docs={userDocs} /> : null}

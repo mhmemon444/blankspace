@@ -167,8 +167,8 @@ actor Blankspace {
   //Hashmap of docIDs to doc contents
   var docContents = HashMap.HashMap<Text, Text>(1, Text.equal, Text.hash);
   public func updateDocContents(docID: Text, contents: Text) : async () {
-    Debug.print(debug_show(docID));
-    Debug.print(debug_show(contents));
+    // Debug.print(debug_show(docID));
+    // Debug.print(debug_show(contents));
     docContents.put(docID, contents);
   };
 
@@ -179,9 +179,23 @@ actor Blankspace {
     };
     return contents; 
     //commentssssssssssss
-  }
+  };
 
+  //Hashmap of docIDs to access settings
+  var docAccess = HashMap.HashMap<Text, Text>(1, Text.equal, Text.hash);
+  public func updateDocAccess(docID: Text, access: Text) : async () {
+    Debug.print(debug_show(docID));
+    Debug.print(debug_show(access));
+    docAccess.put(docID, access);
+  };
 
-
+  public query func getDocAccess(docID: Text) : async Text {
+    var contents : Text = switch(docAccess.get(docID)){
+      case null "Anyone"; 
+      case (?result) result; 
+    };
+    return contents; 
+    //commentssssssssssss
+  };
 
 }
